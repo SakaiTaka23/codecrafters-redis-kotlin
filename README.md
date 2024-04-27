@@ -14,3 +14,8 @@ event loops, the Redis protocol and more.
 ```shell
 telnet 127.0.0.1 6379
 ```
+```shell
+redis-cli *1\r\n$4\r\nping\r\n
+
+redis-cli *2\r\n$4\r\necho\r\n$3\r\nhey\r\n
+```

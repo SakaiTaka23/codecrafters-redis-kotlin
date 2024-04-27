@@ -6,7 +6,6 @@ import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 private const val REDIS_PORT = 6379
 
@@ -24,8 +23,10 @@ public suspend fun main() {
                 val sendChanel = socket.openWriteChannel(autoFlush = true)
                 try {
                     while (true) {
-                        val command = receiveChannel.readUTF8Line()
-                        routes.Routing().defineRoutes(command, sendChanel)
+                        val command = receiveChannel.readUTF8Line(10)
+                        println("Received $command")
+                        val parsedCommand = parser.Command(command).parse() ?: continue
+                        routes.Routing().defineRoutes(parsedCommand, sendChanel)
                     }
                 } catch (e: Throwable) {
                     println("Connection lost $e")
