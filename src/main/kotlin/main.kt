@@ -22,11 +22,12 @@ public suspend fun main() {
             launch {
                 val receiveChannel = socket.openReadChannel()
                 val sendChanel = socket.openWriteChannel(autoFlush = true)
-                sendChanel.writeStringUtf8("Please enter your name\n")
                 try {
                     while (true) {
-                        val name = receiveChannel.readUTF8Line()
-                        sendChanel.writeStringUtf8("Hello, $name\n")
+                        val command = receiveChannel.readUTF8Line()
+                        if (command == "PING") {
+                            sendChanel.writeStringUtf8(commands.Ping().run)
+                        }
                     }
                 } catch (e: Throwable) {
                     println("Connection lost $e")
