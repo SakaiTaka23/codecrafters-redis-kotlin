@@ -56,6 +56,12 @@
                         </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <args>
+                        <arg>-Xexplicit-api=strict</arg> <!-- Enable explicit api mode -->
+                        ...
+                    </args>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
