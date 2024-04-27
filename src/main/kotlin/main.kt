@@ -3,7 +3,6 @@ import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.readUTF8Line
-import io.ktor.utils.io.writeStringUtf8
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -25,9 +24,7 @@ public suspend fun main() {
                 try {
                     while (true) {
                         val command = receiveChannel.readUTF8Line()
-                        if (command == "PING") {
-                            sendChanel.writeStringUtf8(commands.Ping().run)
-                        }
+                        routes.Routing().defineRoutes(command, sendChanel)
                     }
                 } catch (e: Throwable) {
                     println("Connection lost $e")
