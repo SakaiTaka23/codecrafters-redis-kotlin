@@ -104,7 +104,7 @@ style:
   MagicNumber:
     ignoreAnnotation: true
     ignoreEnums: true
-    ignoreNumbers: [ '-1', '0', '1', '2', '3', '4', '8', '16', '6379' ]
+    ignoreNumbers: [ '-1', '0', '1', '2', '3', '4', '8', '10', '16', '6379' ]
   NoTabs:
     active: true
   ObjectLiteralToLambda:
