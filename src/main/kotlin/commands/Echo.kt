@@ -1,7 +1,8 @@
 package commands
 
-public class Echo {
-    public fun run(command: String): String {
-        return "$command\r\n"
-    }
+import global.RedisCommand
+import global.RedisOutput
+
+public class Echo: CommandRoutes {
+    override fun run(command: RedisCommand): RedisOutput = RedisOutput(mutableListOf(command.arguments[0]))
 }

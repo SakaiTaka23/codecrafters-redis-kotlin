@@ -6,11 +6,8 @@ import io.ktor.utils.io.ByteReadChannel
 public class Reader(private val source: ByteReadChannel) {
     public suspend fun read(): RedisCommand {
         val commandCount = countCommand()
-        println("Command count: $commandCount")
         val mainCommand = MainCommand(source).read()
-        println("Main command: $mainCommand")
         val arguments = Arguments(source).read(commandCount)
-        println("Arguments: $arguments")
 
         val result = RedisCommand(commandCount,mainCommand, arguments)
         println("Command: $result")

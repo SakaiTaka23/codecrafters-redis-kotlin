@@ -1,5 +1,8 @@
 package commands
 
-public class Ping {
-    public val run: String = "+PONG\r\n"
+import global.RedisCommand
+import global.RedisOutput
+
+public class Ping: CommandRoutes {
+    override fun run(command: RedisCommand): RedisOutput = RedisOutput(mutableListOf("+PONG"))
 }

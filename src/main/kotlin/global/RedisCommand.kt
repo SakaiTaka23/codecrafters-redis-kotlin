@@ -1,7 +1,13 @@
 package global
 
 public data class RedisCommand(
-    var commandCount: Int,
-    var commandName: String,
-    var arguments: MutableList<String>
+    val commandCount: Int,
+    val commandName: String,
+    val arguments: MutableList<String>
+)
+
+public fun RedisCommand.toRedisOutput(): RedisOutput = RedisOutput(arguments)
+
+public data class RedisOutput(
+    val responses: MutableList<String>
 )

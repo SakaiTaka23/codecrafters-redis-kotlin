@@ -7,9 +7,13 @@ import io.ktor.utils.io.writeStringUtf8
 public class Routing {
     public suspend fun defineRoutes(command: RedisCommand, sendChannel: ByteWriteChannel) {
         if (command.commandName == "ping") {
-            sendChannel.writeStringUtf8(commands.Ping().run)
+            val result = commands.Ping().run(command)
+            val response = presentor.Responder(result, presentor.Encoder()).buildResponse()
+            sendChannel.writeStringUtf8(response)
         } else if (command.commandName == "echo") {
-            sendChannel.writeStringUtf8(commands.Echo().run(command.arguments[0]))
+            val result = commands.Echo().run(command)
+            val response = presentor.Responder(result, presentor.Encoder()).buildResponse()
+            sendChannel.writeStringUtf8(response)
         }
     }
 }
