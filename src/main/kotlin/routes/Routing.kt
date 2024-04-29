@@ -48,6 +48,10 @@ public class Routing(private val socket: ServerSocket) {
                 val result = commands.Set().run(command)
                 responder.sendSimpleString(result, sendChannel)
             }
+            "get" -> {
+                val result = commands.Get().run(command)
+                responder.sendBulkString(result, sendChannel)
+            }
             else -> error("unknown command ${command.commandName}")
         }
     }

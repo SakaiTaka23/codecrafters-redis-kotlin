@@ -3,11 +3,11 @@ package commands
 import global.RedisCommand
 import global.RedisOutput
 
-public class Set: CommandRoutes {
+public class Get: CommandRoutes {
     private val repo = repository.InMemory.getInstance()
 
     override fun run(command: RedisCommand): RedisOutput {
-        repo.set(command.arguments[0], command.arguments[1])
-        return RedisOutput(mutableListOf("OK"))
+        val result = repo.get(command.arguments[0])
+        return RedisOutput(mutableListOf(result))
     }
 }

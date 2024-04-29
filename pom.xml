@@ -53,6 +53,11 @@
                             <sourceDirs>
                                 <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
                             </sourceDirs>
+                            <apiVersion>1.9</apiVersion>
+                            <languageVersion>2.0</languageVersion>
+                            <args>
+                                <arg>-Xexplicit-api=strict</arg>
+                            </args>
                         </configuration>
                     </execution>
                 </executions>
