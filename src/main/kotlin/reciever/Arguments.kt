@@ -2,8 +2,8 @@ package reciever
 
 import io.ktor.utils.io.ByteReadChannel
 
-public class Arguments(private val source: ByteReadChannel) {
-    public suspend fun read(argCount: Int): MutableList<String> {
+public class Arguments {
+    public suspend fun read(source: ByteReadChannel, argCount: Int): MutableList<String> {
         val argList = mutableListOf<String>()
         val loopCount = argCount - 1
 
