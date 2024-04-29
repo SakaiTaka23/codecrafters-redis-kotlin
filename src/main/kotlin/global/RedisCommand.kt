@@ -11,3 +11,5 @@ public fun RedisCommand.toRedisOutput(): RedisOutput = RedisOutput(arguments)
 public data class RedisOutput(
     val responses: MutableList<String>
 )
+
+public fun RedisOutput.commandCount(): Int = responses.size

@@ -7,9 +7,11 @@ import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import presentor.Responder
 
 public class Routing(private val socket: ServerSocket) {
     private val reader = reciever.Reader()
+    private val responder = Responder()
 
     public suspend fun start() {
         coroutineScope {
@@ -35,13 +37,13 @@ public class Routing(private val socket: ServerSocket) {
     private suspend fun defineRoutes(command: RedisCommand, sendChannel: ByteWriteChannel) {
         if (command.commandName == "ping") {
             val result = commands.Ping().run(command)
-            presentor.Responder(result, presentor.Encoder(), sendChannel).sendSimpleString()
+            responder.sendSimpleString(result, sendChannel)
         } else if (command.commandName == "echo") {
             val result = commands.Echo().run(command)
-            presentor.Responder(result, presentor.Encoder(), sendChannel).sendBulkString()
+            responder.sendBulkString(result, sendChannel)
         } else if (command.commandName == "set") {
             val result = commands.Set().run(command)
-            presentor.Responder(result, presentor.Encoder(), sendChannel).sendSimpleString()
+            responder.sendSimpleString(result, sendChannel)
         }
     }
 }

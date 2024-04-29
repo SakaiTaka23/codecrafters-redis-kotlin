@@ -1,27 +1,26 @@
 package presentor
 
+import global.RedisOutput
+import global.commandCount
 import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.writeStringUtf8
 
-public class Responder(
-    output: global.RedisOutput,
-    private val encoder: Encoder,
-    private val sender: ByteWriteChannel
-    ) {
-    private val commandCount = output.responses.size
-    private val responses = output.responses
+public class Responder {
+    private val encoder = Encoder()
 
-    public suspend fun sendBulkString() {
+    public suspend fun sendBulkString(output: RedisOutput, sender: ByteWriteChannel) {
+        val commandCount = output.commandCount()
+
         if (commandCount > 1) {
             sender.writeStringUtf8(encoder.resultCount(commandCount))
         }
-        responses.forEach {
+        output.responses.forEach {
             sender.writeStringUtf8(encoder.resultContentCount(it.length) + encoder.resultContent(it))
         }
     }
 
-    public suspend fun sendSimpleString() {
-        responses.forEach {
+    public suspend fun sendSimpleString(output: RedisOutput, sender: ByteWriteChannel) {
+        output.responses.forEach {
             sender.writeStringUtf8(encoder.resultSimpleString(it))
         }
     }
