@@ -11,12 +11,18 @@ public class Responder(
     private val commandCount = output.responses.size
     private val responses = output.responses
 
-    public suspend fun sendResponse() {
+    public suspend fun sendBulkString() {
         if (commandCount > 1) {
             sender.writeStringUtf8(encoder.resultCount(commandCount))
         }
         responses.forEach {
             sender.writeStringUtf8(encoder.resultContentCount(it.length) + encoder.resultContent(it))
+        }
+    }
+
+    public suspend fun sendSimpleString() {
+        responses.forEach {
+            sender.writeStringUtf8(encoder.resultSimpleString(it))
         }
     }
 }

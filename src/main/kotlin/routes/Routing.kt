@@ -35,10 +35,13 @@ public class Routing(private val socket: ServerSocket) {
     private suspend fun defineRoutes(command: RedisCommand, sendChannel: ByteWriteChannel) {
         if (command.commandName == "ping") {
             val result = commands.Ping().run(command)
-            presentor.Responder(result, presentor.Encoder(), sendChannel).sendResponse()
+            presentor.Responder(result, presentor.Encoder(), sendChannel).sendSimpleString()
         } else if (command.commandName == "echo") {
             val result = commands.Echo().run(command)
-            presentor.Responder(result, presentor.Encoder(), sendChannel).sendResponse()
+            presentor.Responder(result, presentor.Encoder(), sendChannel).sendBulkString()
+        } else if (command.commandName == "set") {
+            val result = commands.Set().run(command)
+            presentor.Responder(result, presentor.Encoder(), sendChannel).sendSimpleString()
         }
     }
 }
