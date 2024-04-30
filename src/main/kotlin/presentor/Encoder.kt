@@ -9,6 +9,8 @@ public class Encoder {
     public fun resultContent(content: String): String = content.addCRCL()
 
     public fun resultSimpleString(content: String): String = "+$content".addCRCL()
+
+    public fun resultNullBulkString(): String = "\$-1".addCRCL()
 }
 
 private fun String.addCRCL(): String = this + "\r\n"

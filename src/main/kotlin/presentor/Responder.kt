@@ -10,9 +10,12 @@ public class Responder {
 
     public suspend fun sendBulkString(output: RedisOutput, sender: ByteWriteChannel) {
         val commandCount = output.commandCount()
-
         if (commandCount > 1) {
             sender.writeStringUtf8(encoder.resultCount(commandCount))
+        }
+        if (output.responses[0] == "-1") {
+            sender.writeStringUtf8(encoder.resultNullBulkString())
+            return
         }
         output.responses.forEach {
             sender.writeStringUtf8(encoder.resultContentCount(it.length) + encoder.resultContent(it))
