@@ -4,12 +4,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import routes.Routing
 
-private const val REDIS_PORT = 6379
+public suspend fun main(args: Array<String>) {
+    var redisPort = 6379
+    for (i in args.indices) {
+        if (args[i] == "--port" && i + 1 < args.size) {
+            redisPort = args[i + 1].toIntOrNull() ?: redisPort
+        }
+    }
 
-public suspend fun main() {
     coroutineScope {
         val selectorManager = SelectorManager(Dispatchers.IO)
-        val serverSocket = aSocket(selectorManager).tcp().bind("127.0.0.1", REDIS_PORT)
+        val serverSocket = aSocket(selectorManager).tcp().bind("127.0.0.1", redisPort)
         println("Server started at ${serverSocket.localAddress}")
         Routing(serverSocket).start()
     }
