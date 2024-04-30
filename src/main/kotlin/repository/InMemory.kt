@@ -3,24 +3,15 @@ package repository
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
-public class InMemory private constructor() {
-    public companion object {
-        @Volatile
-        private var instance: InMemory? = null
-
-        public fun getInstance(): InMemory = instance ?: synchronized(this) {
-            instance ?: InMemory().also { instance = it }
-        }
-    }
-
+public class InMemory : IStorage {
     private val data = ConcurrentHashMap<String, Pair<String, Instant?>>()
 
-    public fun set(key: String, value: String, expires: Instant? = null) {
+    public override fun set(key: String, value: String, expires: Instant?) {
         println("setting $key, $value, $expires")
         data[key] = value to expires
     }
 
-    public fun get(key: String): String? {
+    public override fun get(key: String): String? {
         val (value, expires) = data[key] ?: return null
         if (expires != null && Instant.now().isAfter(expires)) {
             delete(key)
@@ -31,7 +22,7 @@ public class InMemory private constructor() {
         return value
     }
 
-    public fun delete(key: String) {
+    public override fun delete(key: String) {
         data.remove(key)
     }
 }

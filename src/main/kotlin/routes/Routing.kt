@@ -8,16 +8,18 @@ import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import presentor.Responder
+import reciever.Reader
 
-public class Routing(private val socket: ServerSocket) {
-    private val reader = reciever.Reader()
-    private val responder = Responder()
-
+public class Routing(
+    private val reader: Reader,
+    private val responder: Responder,
+    private val socket: ServerSocket
+) {
     public suspend fun start() {
         coroutineScope {
-        while (true) {
-            val connection = socket.accept()
-            launch {
+            while (true) {
+                val connection = socket.accept()
+                launch {
                     val receiveChannel = connection.openReadChannel()
                     val sendChanel = connection.openWriteChannel(autoFlush = true)
                     try {
@@ -40,18 +42,22 @@ public class Routing(private val socket: ServerSocket) {
                 val result = commands.Ping().run(command)
                 responder.sendSimpleString(result, sendChannel)
             }
+
             "echo" -> {
                 val result = commands.Echo().run(command)
                 responder.sendBulkString(result, sendChannel)
             }
+
             "set" -> {
                 val result = commands.Set().run(command)
                 responder.sendSimpleString(result, sendChannel)
             }
+
             "get" -> {
                 val result = commands.Get().run(command)
                 responder.sendBulkString(result, sendChannel)
             }
+
             else -> error("unknown command ${command.commandName}")
         }
     }

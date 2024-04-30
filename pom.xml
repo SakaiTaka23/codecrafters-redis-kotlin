@@ -180,13 +180,6 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-test -->
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-test</artifactId>
-            <version>${coroutines.version}</version>
-            <type>pom</type>
-        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-core</artifactId>
@@ -202,5 +195,24 @@
             <artifactId>kotlinx-datetime-jvm</artifactId>
             <version>0.6.0-RC.2</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.insert-koin/koin-core -->
+        <dependency>
+            <groupId>io.insert-koin</groupId>
+            <artifactId>koin-core-jvm</artifactId>
+            <version>3.5.6</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.insert-koin/koin-test -->
+        <dependency>
+            <groupId>io.insert-koin</groupId>
+            <artifactId>koin-test</artifactId>
+            <version>3.5.6</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.insert-koin/koin-test-junit5 -->
+        <dependency>
+            <groupId>io.insert-koin</groupId>
+            <artifactId>koin-test-junit5</artifactId>
+            <version>3.5.6</version>
+        </dependency>
+
     </dependencies>
 </project>

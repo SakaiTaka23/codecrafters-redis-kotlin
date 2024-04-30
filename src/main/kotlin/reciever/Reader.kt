@@ -3,13 +3,13 @@ package reciever
 import global.RedisCommand
 import io.ktor.utils.io.ByteReadChannel
 
-public class Reader {
+public class Reader(private val mainCommandReader: MainCommand, private val argReader: Arguments) {
     public suspend fun read(source: ByteReadChannel): RedisCommand {
         val commandCount = countCommand(source)
-        val mainCommand = MainCommand().read(source)
-        val arguments = Arguments().read(source, commandCount)
+        val mainCommand = mainCommandReader.read(source)
+        val arguments = argReader.read(source, commandCount)
 
-        val result = RedisCommand(commandCount,mainCommand, arguments)
+        val result = RedisCommand(commandCount, mainCommand, arguments)
         println("Command: $result")
         return result
     }

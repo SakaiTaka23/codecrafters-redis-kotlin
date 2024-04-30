@@ -3,9 +3,11 @@ package commands
 import global.RedisCommand
 import global.RedisOutput
 import java.time.Instant
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-public class Set : CommandRoutes {
-    private val repo = repository.InMemory.getInstance()
+public class Set : CommandRoutes, KoinComponent {
+    private val repo: repository.IStorage by inject()
 
     override fun run(command: RedisCommand): RedisOutput {
         val expirationTime = checkOption(command)
