@@ -1,7 +1,6 @@
 package presentor
 
 import global.RedisOutput
-import global.commandCount
 import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.writeStringUtf8
 
@@ -9,10 +8,6 @@ public class Responder {
     private val encoder = Encoder()
 
     public suspend fun sendBulkString(output: RedisOutput, sender: ByteWriteChannel) {
-        val commandCount = output.commandCount()
-        if (commandCount > 1) {
-            sender.writeStringUtf8(encoder.resultCount(commandCount))
-        }
         if (output.responses[0] == "-1") {
             sender.writeStringUtf8(encoder.resultNullBulkString())
             return
