@@ -6,8 +6,8 @@ import global.RedisOutput
 public class Get : CommandRoutes {
     private val repo = repository.InMemory.getInstance()
 
-    override suspend fun run(command: RedisCommand): RedisOutput {
-        val result = repo.get(command.arguments[0])
+    override fun run(command: RedisCommand): RedisOutput {
+        val result = repo.get(command.arguments[0]) ?: "-1"
         return RedisOutput(mutableListOf(result))
     }
 }
