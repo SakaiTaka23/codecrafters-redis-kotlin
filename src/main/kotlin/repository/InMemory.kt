@@ -7,7 +7,6 @@ public class InMemory : IStorage {
     private val data = ConcurrentHashMap<String, Pair<String, Instant?>>()
 
     public override fun set(key: String, value: String, expires: Instant?) {
-        println("setting $key, $value, $expires")
         data[key] = value to expires
     }
 
@@ -18,7 +17,6 @@ public class InMemory : IStorage {
             return null
         }
 
-        println("was alive $value, $expires")
         return value
     }
 
