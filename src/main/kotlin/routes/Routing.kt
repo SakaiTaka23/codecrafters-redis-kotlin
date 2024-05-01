@@ -38,25 +38,32 @@ public class Routing(
 
     private suspend fun defineRoutes(command: RedisCommand, sendChannel: ByteWriteChannel) {
         when (command.commandName) {
-            "ping" -> {
-                val result = commands.Ping().run(command)
-                responder.sendSimpleString(result, sendChannel)
-            }
-
             "echo" -> {
                 val result = commands.Echo().run(command)
                 responder.sendBulkString(result, sendChannel)
-            }
-
-            "set" -> {
-                val result = commands.Set().run(command)
-                responder.sendSimpleString(result, sendChannel)
             }
 
             "get" -> {
                 val result = commands.Get().run(command)
                 responder.sendBulkString(result, sendChannel)
             }
+
+            "info" -> {
+                val result = commands.Info().run(command)
+                responder.sendBulkString(result, sendChannel)
+            }
+
+            "ping" -> {
+                val result = commands.Ping().run(command)
+                responder.sendSimpleString(result, sendChannel)
+            }
+
+
+            "set" -> {
+                val result = commands.Set().run(command)
+                responder.sendSimpleString(result, sendChannel)
+            }
+
 
             else -> error("unknown command ${command.commandName}")
         }
