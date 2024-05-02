@@ -34,4 +34,19 @@ public class EncoderTest {
         val result = protocol.simpleString()
         assertEquals("+OK\r\n", result)
     }
+
+    @Test
+    public fun `can encode simple string with multiple content`() {
+        val protocol = Protocol(
+            mutableListOf(
+                "FULLRESYNC",
+                "REPL_ID", "0"
+            )
+        )
+        val result = protocol.simpleString()
+        assertEquals(
+            "+FULLRESYNC REPL_ID 0\r\n",
+            result
+        )
+    }
 }

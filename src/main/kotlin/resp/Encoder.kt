@@ -8,7 +8,9 @@ private fun commandCount(count: Int): String = "*$count".addCRCL()
 
 private fun nullBulkString(): String = "\$-1".addCRCL()
 
-private fun simpleString(content: String): String = "+$content".addCRCL()
+private fun simpleString(content: String): String = "+$content"
+
+private fun simpleStringContent(content: String): String = " $content"
 
 private fun String.addCRCL(): String = this + "\r\n"
 
@@ -31,4 +33,14 @@ public fun Protocol.bulkString(): String {
     return result
 }
 
-public fun Protocol.simpleString(): String = simpleString(this.arguments[0])
+public fun Protocol.simpleString(): String {
+    var result = simpleString(this.arguments[0])
+    val arguments = this.arguments
+    arguments.removeAt(0)
+
+    arguments.forEach {
+        result += simpleStringContent(it)
+    }
+
+    return result.addCRCL()
+}

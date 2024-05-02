@@ -58,6 +58,11 @@ public class Routing(
                 responder.sendSimpleString(result, sendChannel)
             }
 
+            "psync" -> {
+                val result = commands.Psync().run(protocol)
+                responder.sendSimpleString(result, sendChannel)
+            }
+
             "replconf" -> {
                 val result = commands.Replconf().run(protocol)
                 responder.sendSimpleString(result, sendChannel)
