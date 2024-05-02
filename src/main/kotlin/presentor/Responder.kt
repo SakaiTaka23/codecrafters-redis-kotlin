@@ -21,12 +21,13 @@ public class Responder(private val encoder: Encoder) {
         }
     }
 
-    public suspend fun sendRESP(output: RedisOutput, sender: ByteWriteChannel) {
+    public suspend fun sendRESPArray(output: RedisOutput, sender: ByteWriteChannel) {
+        var response: String
         val commandCount = output.responses.size
-        sender.writeStringUtf8(
-            encoder.resultCommandCount(commandCount) +
-                    encoder.resultContentCount(output.responses[0].length) +
-                    encoder.resultContent(output.responses[0])
-        )
+        response = encoder.resultCommandCount(commandCount)
+        output.responses.forEach {
+            response += encoder.resultContentCount(it.length) + encoder.resultContent(it)
+        }
+        sender.writeStringUtf8(response)
     }
 }
