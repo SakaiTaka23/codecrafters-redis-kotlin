@@ -6,6 +6,8 @@ public data class RedisCommand(
     val arguments: MutableList<String>
 )
 
+public fun RedisCommand.isOK(): Boolean = arguments[0] == "+ok"
+
 public fun RedisCommand.argumentCount(): Int = arguments.size
 
 public fun RedisCommand.toRedisOutput(): RedisOutput = RedisOutput(arguments)
