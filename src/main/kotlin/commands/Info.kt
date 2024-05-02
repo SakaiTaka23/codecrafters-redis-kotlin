@@ -16,9 +16,11 @@ public class Info : CommandRoutes, KoinComponent {
                 if (server.isSlave) {
                     result.add("role:slave")
                 } else {
-                    result.add("role:master")
-                    result.add("master_replid:8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb")
-                    result.add("master_repl_offset:0")
+                    result.add(
+                        "role:master\r\n"
+                                + "master_replid:8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb\r\n"
+                                + "master_repl_offset:0\r\n"
+                    )
                 }
                 Protocol(result)
             }
