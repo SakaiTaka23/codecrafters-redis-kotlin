@@ -7,8 +7,12 @@ private const val DEFAULT_REDIS_PORT = 6379
 public class Server(args: Array<String>) : KoinComponent {
     public var port: Int = DEFAULT_REDIS_PORT
     public var isSlave: Boolean = false
+
     public var masterHost: String? = null
     public var masterPort: Int? = null
+
+    public var replID: String = ""
+    public var replOffset: Int = 0
 
     init {
         checkOptions(args)
@@ -28,6 +32,11 @@ public class Server(args: Array<String>) : KoinComponent {
                     masterPort = it
                 }
             }
+        }
+
+        if (!isSlave) {
+            replID = "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb"
+            replOffset = 0
         }
     }
 }

@@ -17,7 +17,33 @@ public class InfoTest : KoinTest {
     }
 
     @Test
-    public fun `information of replication`() {
+    public fun `act as master replication when no args are passed`() {
+        val args = arrayOf<String>()
+        startKoin {
+            modules(
+                module {
+                    single<Server> { Server(args) }
+                }
+            )
+        }
+
+        val command = Protocol(mutableListOf("info", "replication"))
+        val result = Info().run(command)
+
+        assertEquals(
+            Protocol(
+                mutableListOf(
+                    "role:master\r\n" +
+                            "master_replid:8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb\r\n" +
+                            "master_repl_offset:0"
+                )
+            ),
+            result
+        )
+    }
+
+    @Test
+    public fun `information of master replication`() {
         val args = arrayOf("--port", "6380")
         startKoin {
             modules(
@@ -35,7 +61,7 @@ public class InfoTest : KoinTest {
                 mutableListOf(
                     "role:master\r\n" +
                             "master_replid:8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb\r\n" +
-                            "master_repl_offset:0\r\n"
+                            "master_repl_offset:0"
                 )
             ),
             result

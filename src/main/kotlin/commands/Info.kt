@@ -18,8 +18,8 @@ public class Info : CommandRoutes, KoinComponent {
                 } else {
                     result.add(
                         "role:master\r\n"
-                                + "master_replid:8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb\r\n"
-                                + "master_repl_offset:0\r\n"
+                                + "master_replid:${server.replID}\r\n"
+                                + "master_repl_offset:${server.replOffset}"
                     )
                 }
                 Protocol(result)
