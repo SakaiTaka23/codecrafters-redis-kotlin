@@ -11,13 +11,15 @@ public class Info : CommandRoutes, KoinComponent {
 
     override fun run(command: RedisCommand): RedisOutput = when (command.arguments.getOrNull(0)) {
         "replication" -> {
-            val result = mutableListOf<String>()
+            var result = ""
             if (server.isSlave) {
-                result.add("role:slave")
+                result += "role:slave"
             } else {
-                result.add("role:master")
+                result += "role:master\r\n"
+                result += "master_replid:8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb\r\n"
+                result += "master_repl_offset:0\r\n"
             }
-            RedisOutput(result)
+            RedisOutput(mutableListOf(result))
         }
 
         else -> RedisOutput(mutableListOf())
