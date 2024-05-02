@@ -20,4 +20,13 @@ public class Responder(private val encoder: Encoder) {
             sender.writeStringUtf8(encoder.resultSimpleString(it))
         }
     }
+
+    public suspend fun sendRESP(output: RedisOutput, sender: ByteWriteChannel) {
+        val commandCount = output.responses.size
+        sender.writeStringUtf8(
+            encoder.resultCommandCount(commandCount) +
+                    encoder.resultContentCount(output.responses[0].length) +
+                    encoder.resultContent(output.responses[0])
+        )
+    }
 }

@@ -19,5 +19,13 @@ public val appModule: Module = module {
     single { Set() }
 }
 
-public val receiveModule: Reader = Reader(MainCommand(), Arguments())
-public val respondModule: Responder = Responder(Encoder())
+public val readerModule: Module = module {
+    single { MainCommand() }
+    single { Arguments() }
+    single { Reader(get(), get()) }
+}
+
+public val responderModule: Module = module {
+    single { Encoder() }
+    single { Responder(get()) }
+}
