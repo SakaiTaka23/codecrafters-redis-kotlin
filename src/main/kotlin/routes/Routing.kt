@@ -58,6 +58,10 @@ public class Routing(
                 responder.sendSimpleString(result, sendChannel)
             }
 
+            "replconf" -> {
+                val result = commands.Replconf().run(protocol)
+                responder.sendSimpleString(result, sendChannel)
+            }
 
             "set" -> {
                 val result = commands.Set().run(protocol)

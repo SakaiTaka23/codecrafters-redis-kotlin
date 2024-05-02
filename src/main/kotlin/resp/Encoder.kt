@@ -32,4 +32,3 @@ public fun Protocol.bulkString(): String {
 }
 
 public fun Protocol.simpleString(): String = simpleString(this.arguments[0])
-

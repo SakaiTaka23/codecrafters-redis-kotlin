@@ -8,6 +8,7 @@ import presentor.Responder
 import reciever.Reader
 import repository.IStorage
 import repository.InMemory
+import resp.Decoder
 
 public val appModule: Module = module {
     single<IStorage> { InMemory() }
@@ -17,6 +18,7 @@ public val appModule: Module = module {
 }
 
 public val readerModule: Module = module {
+    single { Decoder() }
     single { Reader() }
 }
 
