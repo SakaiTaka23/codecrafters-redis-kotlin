@@ -28,6 +28,7 @@ public class HandShake : KoinComponent {
         createClient()
         sendPING()
         sendREPLCONF()
+        sendPSYNC()
     }
 
     private suspend fun createClient() {
@@ -55,5 +56,9 @@ public class HandShake : KoinComponent {
         if (!reader.read(readChanel).isOK()) {
             HANDSHAKE_ERROR
         }
+    }
+
+    private suspend fun sendPSYNC() {
+        client.sendRESPArray(Protocol(mutableListOf("PSYNC", "?", "-1")), writeChannel)
     }
 }
