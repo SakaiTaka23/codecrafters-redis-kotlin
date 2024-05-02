@@ -1,8 +1,7 @@
 package commands
 
-import global.RedisCommand
-import global.RedisOutput
+import resp.Protocol
 
 public class Echo : CommandRoutes {
-    override fun run(command: RedisCommand): RedisOutput = RedisOutput(mutableListOf(command.arguments[0]))
+    override fun run(protocol: Protocol): Protocol = Protocol(mutableListOf(protocol.arguments[1]))
 }

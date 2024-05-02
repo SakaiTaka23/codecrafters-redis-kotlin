@@ -1,7 +1,5 @@
 package commands
 
-import global.RedisCommand
-import global.RedisOutput
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -9,6 +7,7 @@ import org.koin.test.KoinTest
 import org.koin.test.inject
 import repository.IStorage
 import repository.InMemory
+import resp.Protocol
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -40,17 +39,17 @@ public class GetTest : KoinTest {
     public fun `can return existing value`() {
         repo.set(KEY, VALUE)
 
-        val command = RedisCommand(3, "get", mutableListOf(KEY))
+        val command = Protocol(mutableListOf("get", KEY))
         val result = Get().run(command)
 
-        assertEquals(RedisOutput(mutableListOf(VALUE)), result)
+        assertEquals(Protocol(mutableListOf(VALUE)), result)
     }
 
     @Test
     public fun `returns -1 to non existing value`() {
-        val command = RedisCommand(3, "get", mutableListOf(KEY))
+        val command = Protocol(mutableListOf("get", KEY))
         val result = Get().run(command)
 
-        assertEquals(RedisOutput(mutableListOf("-1")), result)
+        assertEquals(Protocol(mutableListOf("-1")), result)
     }
 }

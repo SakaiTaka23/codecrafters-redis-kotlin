@@ -1,8 +1,7 @@
 package commands
 
-import global.RedisCommand
-import global.RedisOutput
+import resp.Protocol
 
 public interface CommandRoutes {
-    public fun run(command: RedisCommand): RedisOutput
+    public fun run(protocol: Protocol): Protocol
 }

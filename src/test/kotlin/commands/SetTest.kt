@@ -1,6 +1,5 @@
 package commands
 
-import global.RedisCommand
 import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockk
@@ -13,6 +12,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import repository.IStorage
+import resp.Protocol
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -49,7 +49,7 @@ public class SetTest : KoinTest {
     @Test
     public fun `can set value (without expiration)`() {
         every { repo.set(capture(argKey), capture(argValue)) } returns Unit
-        val command = RedisCommand(3, "set", mutableListOf(KEY, VALUE))
+        val command = Protocol(mutableListOf("set", KEY, VALUE))
 
         Set().run(command)
 
@@ -60,9 +60,8 @@ public class SetTest : KoinTest {
     @Test
     public fun `can set value (with expiration)`() {
         every { repo.set(capture(argKey), capture(argValue), captureNullable(argExpires)) } returns Unit
-        val command = RedisCommand(
-            3, "set",
-            mutableListOf(KEY, VALUE, "px", "100")
+        val command = Protocol(
+            mutableListOf("set", KEY, VALUE, "px", "100")
         )
 
         Set().run(command)

@@ -1,8 +1,6 @@
 package replicator
 
 import config.Server
-import global.RedisOutput
-import global.isOK
 import io.ktor.network.selector.SelectorManager
 import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
@@ -14,6 +12,8 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import presentor.Responder
 import reciever.Reader
+import resp.Protocol
+import resp.isOK
 
 private val HANDSHAKE_ERROR: Nothing = error("Failed to create connection with master node")
 
@@ -38,7 +38,7 @@ public class HandShake : KoinComponent {
     }
 
     private suspend fun sendPING() {
-        client.sendRESPArray(RedisOutput(mutableListOf("ping")), writeChannel)
+        client.sendRESPArray(Protocol(mutableListOf("ping")), writeChannel)
         if (!reader.read(readChanel).isOK()) {
             HANDSHAKE_ERROR
         }
@@ -46,12 +46,12 @@ public class HandShake : KoinComponent {
 
     private suspend fun sendREPLCONF() {
         client.sendRESPArray(
-            RedisOutput(mutableListOf("REPLCONF", "listening-port", "${server.masterPort}")), writeChannel
+            Protocol(mutableListOf("REPLCONF", "listening-port", "${server.masterPort}")), writeChannel
         )
         if (!reader.read(readChanel).isOK()) {
             HANDSHAKE_ERROR
         }
-        client.sendRESPArray(RedisOutput(mutableListOf("REPLCONF", "capa", "psync2")), writeChannel)
+        client.sendRESPArray(Protocol(mutableListOf("REPLCONF", "capa", "psync2")), writeChannel)
         if (!reader.read(readChanel).isOK()) {
             HANDSHAKE_ERROR
         }

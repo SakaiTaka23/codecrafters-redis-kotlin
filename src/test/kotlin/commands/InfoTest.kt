@@ -1,12 +1,11 @@
 package commands
 
 import config.Server
-import global.RedisCommand
-import global.RedisOutput
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
+import resp.Protocol
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,15 +27,15 @@ public class InfoTest : KoinTest {
             )
         }
 
-        val command = RedisCommand(1, "info", mutableListOf("replication"))
+        val command = Protocol(mutableListOf("info", "replication"))
         val result = Info().run(command)
 
         assertEquals(
-            RedisOutput(
+            Protocol(
                 mutableListOf(
-                    "role:master\r\n" +
-                            "master_replid:8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb\r\n" +
-                            "master_repl_offset:0\r\n"
+                    "role:master",
+                    "master_replid:8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
+                    "master_repl_offset:0"
                 )
             ),
             result
@@ -54,11 +53,11 @@ public class InfoTest : KoinTest {
             )
         }
 
-        val command = RedisCommand(1, "info", mutableListOf("replication"))
+        val command = Protocol(mutableListOf("info", "replication"))
         val result = Info().run(command)
 
         assertEquals(
-            RedisOutput(mutableListOf("role:slave")),
+            Protocol(mutableListOf("role:slave")),
             result
         )
     }
@@ -74,11 +73,11 @@ public class InfoTest : KoinTest {
             )
         }
 
-        val command = RedisCommand(1, "info", mutableListOf(""))
+        val command = Protocol(mutableListOf("info", ""))
         val result = Info().run(command)
 
         assertEquals(
-            RedisOutput(mutableListOf()),
+            Protocol(mutableListOf()),
             result
         )
     }

@@ -1,24 +1,39 @@
 package reciever
 
-import global.RedisCommand
 import io.ktor.utils.io.ByteReadChannel
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import resp.Decoder
+import resp.Protocol
 
-public class Reader(private val mainCommandReader: MainCommand, private val argReader: Arguments) {
-    public suspend fun read(source: ByteReadChannel): RedisCommand {
-        val commandCount = countCommand(source)
-        val mainCommand = mainCommandReader.read(source)
-        val arguments = argReader.read(source, commandCount)
+public class Reader : KoinComponent {
+    private val decoder: Decoder by inject()
 
-        val result = RedisCommand(commandCount, mainCommand, arguments)
-        println("Command: $result")
-        return result
-    }
+    public suspend fun read(source: ByteReadChannel): Protocol {
+        val result = mutableListOf<String>()
+        val firstLine = source.readUTF8Line(10) ?: error("message not found")
+        val firstLetter = firstLine.first()
 
-    private suspend fun countCommand(source: ByteReadChannel): Int {
-        val countLine = source.readUTF8Line(10) ?: ""
-        if (countLine.startsWith("*")) {
-            return countLine.removePrefix("*").toInt()
+        return when (firstLetter) {
+            '+' -> {
+                result.add(decoder.read(firstLine))
+                Protocol(result)
+            }
+
+            '*' -> {
+                val inputSize = firstLine.removePrefix("*").toIntOrNull() ?: error("invalid command count")
+                repeat(inputSize * 2) {
+                    val line = source.readUTF8Line(10) ?: error("input size exceeds input size")
+                    decoder.read(line).let {
+                        if (it.isNotBlank()) {
+                            result.add(it)
+                        }
+                    }
+                }
+                Protocol(result)
+            }
+
+            else -> Protocol(result)
         }
-        return 0
     }
 }

@@ -1,31 +1,30 @@
 package commands
 
-import global.RedisCommand
-import global.RedisOutput
 import java.time.Clock
 import java.time.Instant
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import resp.Protocol
 
 public class Set : CommandRoutes, KoinComponent {
     private val repo: repository.IStorage by inject()
     private val clock: Clock by inject()
 
-    override fun run(command: RedisCommand): RedisOutput {
-        val expirationTime = checkOption(command)
+    override fun run(protocol: Protocol): Protocol {
+        val expirationTime = checkOption(protocol)
 
         if (expirationTime == null) {
-            repo.set(command.arguments[0], command.arguments[1])
+            repo.set(protocol.arguments[1], protocol.arguments[2])
         } else {
-            repo.set(command.arguments[0], command.arguments[1], Instant.now(clock).plusMillis(expirationTime))
+            repo.set(protocol.arguments[1], protocol.arguments[2], Instant.now(clock).plusMillis(expirationTime))
         }
 
-        return RedisOutput(mutableListOf("OK"))
+        return Protocol(mutableListOf("OK"))
     }
 
-    private fun checkOption(command: RedisCommand): Long? {
-        if (command.arguments.getOrNull(2)?.lowercase() == "px") {
-            return command.arguments[3].toLongOrNull()
+    private fun checkOption(protocol: Protocol): Long? {
+        if (protocol.arguments.getOrNull(3)?.lowercase() == "px") {
+            return protocol.arguments[4].toLongOrNull()
         }
         return null
     }
