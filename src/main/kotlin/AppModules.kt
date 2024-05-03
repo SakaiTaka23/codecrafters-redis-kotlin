@@ -6,6 +6,7 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 import presentor.Responder
 import reciever.Reader
+import replicator.Propagator
 import repository.IStorage
 import repository.InMemory
 import resp.Decoder
@@ -15,6 +16,10 @@ public val appModule: Module = module {
     single<Clock> { Clock.system(ZoneId.of("Asia/Tokyo")) }
     single { Get() }
     single { Set() }
+}
+
+public val propagateModule: Module = module {
+    single { Propagator() }
 }
 
 public val readerModule: Module = module {

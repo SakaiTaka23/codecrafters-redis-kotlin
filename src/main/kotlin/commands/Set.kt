@@ -4,10 +4,11 @@ import java.time.Clock
 import java.time.Instant
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import repository.IStorage
 import resp.Protocol
 
 public class Set : CommandRoutes, KoinComponent {
-    private val repo: repository.IStorage by inject()
+    private val repo: IStorage by inject()
     private val clock: Clock by inject()
 
     override fun run(protocol: Protocol): Protocol {

@@ -6,15 +6,18 @@ import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import presentor.Responder
 import reciever.Reader
+import replicator.Propagator
 import resp.Protocol
 
-public class Routing(
-    private val reader: Reader,
-    private val responder: Responder,
-    private val socket: ServerSocket
-) {
+public class Routing(private val socket: ServerSocket) : KoinComponent {
+    private val reader: Reader by inject()
+    private val responder: Responder by inject()
+    private val propagator: Propagator by inject()
+
     public suspend fun start() {
         coroutineScope {
             while (true) {
@@ -61,6 +64,7 @@ public class Routing(
             "psync" -> {
                 val result = commands.Psync().run(protocol)
                 responder.sendSimpleString(result, sendChannel)
+                commands.Psync().saveClient(sendChannel)
                 val rdbFile = commands.Psync().emptyRDBFile()
                 responder.sendRdbFile(rdbFile, sendChannel)
             }
@@ -73,6 +77,7 @@ public class Routing(
             "set" -> {
                 val result = commands.Set().run(protocol)
                 responder.sendSimpleString(result, sendChannel)
+                propagator.set(protocol)
             }
 
 

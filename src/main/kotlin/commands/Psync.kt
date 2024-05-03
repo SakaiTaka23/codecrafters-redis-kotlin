@@ -1,6 +1,7 @@
 package commands
 
 import config.Server
+import io.ktor.utils.io.ByteWriteChannel
 import java.util.Base64
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -23,6 +24,8 @@ public class Psync : CommandRoutes, KoinComponent {
         } else {
             Protocol(mutableListOf())
         }
+
+    public fun saveClient(channel: ByteWriteChannel): Unit = server.addReplicaChannel(channel)
 
     public fun emptyRDBFile(): ByteArray = Base64.getDecoder().decode(EMPTY_RDB_FILE)
 }

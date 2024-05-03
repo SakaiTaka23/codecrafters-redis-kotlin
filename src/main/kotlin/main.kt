@@ -7,8 +7,6 @@ import kotlinx.coroutines.launch
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
-import presentor.Responder
-import reciever.Reader
 import replicator.HandShake
 import routes.Routing
 
@@ -16,6 +14,7 @@ public suspend fun main(args: Array<String>) {
     startKoin {
         modules(
             appModule,
+            propagateModule,
             readerModule,
             responderModule,
             module {
@@ -36,6 +35,6 @@ public suspend fun main(args: Array<String>) {
                 HandShake().run()
             }
         }
-        Routing(GlobalContext.get().get<Reader>(), GlobalContext.get().get<Responder>(), serverSocket).start()
+        Routing(serverSocket).start()
     }
 }

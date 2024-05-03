@@ -1,5 +1,6 @@
 package config
 
+import io.ktor.utils.io.ByteWriteChannel
 import org.koin.core.component.KoinComponent
 
 private const val DEFAULT_REDIS_PORT = 6379
@@ -10,12 +11,17 @@ public class Server(args: Array<String>) : KoinComponent {
 
     public var masterHost: String? = null
     public var masterPort: Int? = null
+    public val replicaClients: MutableList<ByteWriteChannel> = mutableListOf()
 
     public var replID: String = ""
     public var replOffset: Int = 0
 
     init {
         checkOptions(args)
+    }
+
+    public fun addReplicaChannel(client: ByteWriteChannel) {
+        replicaClients.add(client)
     }
 
     private fun checkOptions(args: Array<String>) {
