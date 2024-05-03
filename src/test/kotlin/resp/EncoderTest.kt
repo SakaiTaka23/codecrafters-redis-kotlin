@@ -9,7 +9,7 @@ public class EncoderTest {
         val protocol = Protocol(mutableListOf("some", "same"))
         val result = protocol.encodeArray()
         assertEquals(
-            "*2\r\n$4\r\nsome\r\n$4\r\nsame\r\n",
+            mutableListOf("*2\r\n", "$4\r\n", "some\r\n", "$4\r\n", "same\r\n"),
             result
         )
     }
@@ -18,14 +18,14 @@ public class EncoderTest {
     public fun `returns null bulk string on empty bulk string`() {
         val protocol = Protocol(mutableListOf("-1"))
         val result = protocol.bulkString()
-        assertEquals("\$-1\r\n", result)
+        assertEquals(mutableListOf("\$-1\r\n"), result)
     }
 
     @Test
     public fun `can encode bulk string`() {
         val protocol = Protocol(mutableListOf("some"))
         val result = protocol.bulkString()
-        assertEquals("\$4\r\nsome\r\n", result)
+        assertEquals(mutableListOf("\$4\r\n", "some\r\n"), result)
     }
 
     @Test

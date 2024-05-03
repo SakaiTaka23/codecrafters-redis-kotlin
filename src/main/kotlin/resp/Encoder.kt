@@ -16,21 +16,23 @@ private fun String.addCRCL(): String = this + "\r\n"
 
 public fun ByteArray.rdbFileSize(): String = "\$${this.size}".addCRCL()
 
-public fun Protocol.encodeArray(): String {
-    var result = commandCount(this.arguments.size)
+public fun Protocol.encodeArray(): MutableList<String> {
+    val result = mutableListOf(commandCount(this.arguments.size))
     this.arguments.forEach {
-        result += contentCount(it.length) + content(it)
+        result.add(contentCount(it.length))
+        result.add(content(it))
     }
     return result
 }
 
-public fun Protocol.bulkString(): String {
+public fun Protocol.bulkString(): MutableList<String> {
     if (this.arguments[0] == "-1") {
-        return nullBulkString()
+        return mutableListOf(nullBulkString())
     }
-    var result = ""
+    val result = mutableListOf<String>()
     this.arguments.forEach {
-        result += contentCount(it.length) + content(it)
+        result.add(contentCount(it.length))
+        result.add(content(it))
     }
     return result
 }
