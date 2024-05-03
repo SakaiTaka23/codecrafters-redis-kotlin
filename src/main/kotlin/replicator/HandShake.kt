@@ -39,26 +39,26 @@ public class HandShake : KoinComponent {
     }
 
     private suspend fun sendPING() {
-        client.sendRESPArray(Protocol(mutableListOf("ping")), writeChannel)
+        client.sendArray(Protocol(mutableListOf("ping")), writeChannel)
         if (reader.read(readChanel).arguments[0] != "PONG") {
             HANDSHAKE_ERROR
         }
     }
 
     private suspend fun sendREPLCONF() {
-        client.sendRESPArray(
+        client.sendArray(
             Protocol(mutableListOf("REPLCONF", "listening-port", "${server.port}")), writeChannel
         )
         if (!reader.read(readChanel).isOK()) {
             HANDSHAKE_ERROR
         }
-        client.sendRESPArray(Protocol(mutableListOf("REPLCONF", "capa", "psync2")), writeChannel)
+        client.sendArray(Protocol(mutableListOf("REPLCONF", "capa", "psync2")), writeChannel)
         if (!reader.read(readChanel).isOK()) {
             HANDSHAKE_ERROR
         }
     }
 
     private suspend fun sendPSYNC() {
-        client.sendRESPArray(Protocol(mutableListOf("PSYNC", "?", "-1")), writeChannel)
+        client.sendArray(Protocol(mutableListOf("PSYNC", "?", "-1")), writeChannel)
     }
 }

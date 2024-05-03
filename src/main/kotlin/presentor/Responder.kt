@@ -23,7 +23,7 @@ public class Responder {
         sender.writeFully(content)
     }
 
-    public suspend fun sendRESPArray(protocol: Protocol, sender: ByteWriteChannel) {
+    public suspend fun sendArray(protocol: Protocol, sender: ByteWriteChannel) {
         sender.writeStringUtf8(protocol.encodeArray())
     }
 }
