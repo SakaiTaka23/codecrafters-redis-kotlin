@@ -61,6 +61,8 @@ public class Routing(
             "psync" -> {
                 val result = commands.Psync().run(protocol)
                 responder.sendSimpleString(result, sendChannel)
+                val rdbFile = commands.Psync().emptyRDBFile()
+                responder.sendRdbFile(rdbFile, sendChannel)
             }
 
             "replconf" -> {

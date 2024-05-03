@@ -14,6 +14,8 @@ private fun simpleStringContent(content: String): String = " $content"
 
 private fun String.addCRCL(): String = this + "\r\n"
 
+public fun ByteArray.rdbFileSize(): String = "\$${this.size}".addCRCL()
+
 public fun Protocol.encodeArray(): String {
     var result = commandCount(this.arguments.size)
     this.arguments.forEach {
@@ -32,6 +34,8 @@ public fun Protocol.bulkString(): String {
     }
     return result
 }
+
+public fun Protocol.rdbFile(): String = this.arguments[0]
 
 public fun Protocol.simpleString(): String {
     var result = simpleString(this.arguments[0])
