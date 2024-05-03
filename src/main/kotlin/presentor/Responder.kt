@@ -11,7 +11,10 @@ import resp.simpleString
 
 public class Responder {
     public suspend fun sendBulkString(protocol: Protocol, sender: ByteWriteChannel) {
-        sender.writeStringUtf8(protocol.bulkString())
+        val result = protocol.bulkString()
+        result.forEach {
+            sender.writeStringUtf8(it)
+        }
     }
 
     public suspend fun sendSimpleString(protocol: Protocol, sender: ByteWriteChannel) {
@@ -24,6 +27,9 @@ public class Responder {
     }
 
     public suspend fun sendArray(protocol: Protocol, sender: ByteWriteChannel) {
-        sender.writeStringUtf8(protocol.encodeArray())
+        val result = protocol.encodeArray()
+        result.forEach {
+            sender.writeStringUtf8(it)
+        }
     }
 }

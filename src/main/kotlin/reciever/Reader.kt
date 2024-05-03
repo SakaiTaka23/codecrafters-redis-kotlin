@@ -1,12 +1,13 @@
 package reciever
 
 import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.core.readBytes
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import resp.Decoder
 import resp.Protocol
 
-private const val READ_LINE_LIMIT = 50
+private const val READ_LINE_LIMIT = 100
 
 public class Reader : KoinComponent {
     private val decoder: Decoder by inject()
@@ -26,7 +27,7 @@ public class Reader : KoinComponent {
             '*' -> {
                 val inputSize = firstLine.removePrefix("*").toIntOrNull() ?: error("invalid command count")
                 repeat(inputSize * 2) {
-                    val line = source.readUTF8Line(READ_LINE_LIMIT) ?: error("input size exceeds input size")
+                    val line = source.readUTF8Line(READ_LINE_LIMIT) ?: error("message not found")
                     decoder.read(line).let {
                         if (it.isNotBlank()) {
                             result.add(it)
@@ -40,5 +41,13 @@ public class Reader : KoinComponent {
 
             else -> Protocol(result)
         }
+    }
+
+    public suspend fun readRdb(source: ByteReadChannel): ByteArray {
+        val type = source.readByte()
+        check(type == '$'.code.toByte()) { "Not a RDB" }
+        val size = source.readUTF8Line(READ_LINE_LIMIT)?.toIntOrNull() ?: error("closed")
+
+        return source.readPacket(size).readBytes(size)
     }
 }
