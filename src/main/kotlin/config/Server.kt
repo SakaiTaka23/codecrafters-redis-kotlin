@@ -1,5 +1,6 @@
 package config
 
+import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
 import org.koin.core.component.KoinComponent
 
@@ -12,6 +13,9 @@ public class Server(args: Array<String>) : KoinComponent {
     public var masterHost: String? = null
     public var masterPort: Int? = null
     public val replicaClients: MutableList<ByteWriteChannel> = mutableListOf()
+
+    public lateinit var masterReader: ByteReadChannel
+    public lateinit var masterWriter: ByteWriteChannel
 
     public var replID: String = ""
     public var replOffset: Int = 0

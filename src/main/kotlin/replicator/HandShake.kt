@@ -5,8 +5,6 @@ import io.ktor.network.selector.SelectorManager
 import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -21,44 +19,51 @@ public class HandShake : KoinComponent {
     private val server: Server by inject()
     private val client: Responder by inject()
     private val reader: Reader by inject()
-    private lateinit var writeChannel: ByteWriteChannel
-    private lateinit var readChanel: ByteReadChannel
 
     public suspend fun run() {
         createClient()
         sendPING()
         sendREPLCONF()
         sendPSYNC()
+        println("finished handshake successfully")
     }
 
     private suspend fun createClient() {
         val selectorManager = SelectorManager(Dispatchers.IO)
         val socket = aSocket(selectorManager).tcp().connect(server.masterHost!!, server.masterPort!!)
-        writeChannel = socket.openWriteChannel(autoFlush = true)
-        readChanel = socket.openReadChannel()
+        server.masterWriter = socket.openWriteChannel(autoFlush = true)
+        server.masterReader = socket.openReadChannel()
     }
 
     private suspend fun sendPING() {
-        client.sendArray(Protocol(mutableListOf("ping")), writeChannel)
-        if (reader.read(readChanel).arguments[0] != "PONG") {
+        client.sendArray(Protocol(mutableListOf("ping")), server.masterWriter)
+        if (reader.read(server.masterReader).arguments[0] != "PONG") {
             HANDSHAKE_ERROR
         }
     }
 
     private suspend fun sendREPLCONF() {
         client.sendArray(
-            Protocol(mutableListOf("REPLCONF", "listening-port", "${server.port}")), writeChannel
+            Protocol(mutableListOf("REPLCONF", "listening-port", "${server.port}")), server.masterWriter
         )
-        if (!reader.read(readChanel).isOK()) {
+        if (!reader.read(server.masterReader).isOK()) {
             HANDSHAKE_ERROR
         }
-        client.sendArray(Protocol(mutableListOf("REPLCONF", "capa", "psync2")), writeChannel)
-        if (!reader.read(readChanel).isOK()) {
+        client.sendArray(Protocol(mutableListOf("REPLCONF", "capa", "psync2")), server.masterWriter)
+        if (!reader.read(server.masterReader).isOK()) {
             HANDSHAKE_ERROR
         }
     }
 
     private suspend fun sendPSYNC() {
-        client.sendArray(Protocol(mutableListOf("PSYNC", "?", "-1")), writeChannel)
+        server.masterReader = server.masterReader
+        server.masterWriter = server.masterWriter
+        client.sendArray(Protocol(mutableListOf("PSYNC", "?", "-1")), server.masterWriter)
+        val result = reader.read(server.masterReader).arguments[0]
+        if (!result.startsWith("FULLRESYNC")) {
+            HANDSHAKE_ERROR
+        }
+        // read rdb file
+        reader.readRdb(server.masterReader)
     }
 }

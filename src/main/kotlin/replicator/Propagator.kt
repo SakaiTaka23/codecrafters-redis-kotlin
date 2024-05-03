@@ -13,8 +13,10 @@ public class Propagator : KoinComponent {
     public suspend fun set(protocol: Protocol) {
         val request = protocol.encodeArray()
 
-        server.replicaClients.forEach {
-            it.writeStringUtf8(request)
+        server.replicaClients.forEach { writer ->
+            request.forEach {
+                writer.writeStringUtf8(it)
+            }
         }
     }
 }

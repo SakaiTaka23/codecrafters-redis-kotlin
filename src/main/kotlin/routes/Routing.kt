@@ -1,5 +1,6 @@
 package routes
 
+import config.Server
 import io.ktor.network.sockets.ServerSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
@@ -14,9 +15,10 @@ import replicator.Propagator
 import resp.Protocol
 
 public class Routing(private val socket: ServerSocket) : KoinComponent {
+    private val propagator: Propagator by inject()
     private val reader: Reader by inject()
     private val responder: Responder by inject()
-    private val propagator: Propagator by inject()
+    private val server: Server by inject()
 
     public suspend fun start() {
         coroutineScope {
@@ -34,6 +36,21 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
                         println("Connection lost $e")
                         connection.close()
                     }
+                }
+            }
+        }
+    }
+
+    public suspend fun readPropagate() {
+        coroutineScope {
+            launch {
+                try {
+                    while (true) {
+                        val command = reader.read(server.masterReader)
+                        defineRoutes(command, server.masterWriter)
+                    }
+                } catch (e: Throwable) {
+                    println("Connection lost with master $e")
                 }
             }
         }

@@ -33,8 +33,11 @@ public suspend fun main(args: Array<String>) {
             println("Server is in slave mode connecting to ${server.masterHost}:${server.masterPort}")
             launch {
                 HandShake().run()
+                Routing(serverSocket).readPropagate()
             }
         }
-        Routing(serverSocket).start()
+        launch {
+            Routing(serverSocket).start()
+        }
     }
 }
