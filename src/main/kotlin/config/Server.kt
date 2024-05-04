@@ -17,7 +17,8 @@ public class Server(args: Array<String>) : KoinComponent {
     public lateinit var masterReader: ByteReadChannel
     public lateinit var masterWriter: ByteWriteChannel
 
-    public var replID: String = ""
+    public
+    var replID: String = ""
     public var replOffset: Int = 0
 
     init {
@@ -49,4 +50,6 @@ public class Server(args: Array<String>) : KoinComponent {
             replOffset = 0
         }
     }
+
+    public fun getOffset(): Long = masterReader.totalBytesRead
 }
