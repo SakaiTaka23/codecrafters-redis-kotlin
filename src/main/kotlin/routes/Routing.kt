@@ -97,6 +97,11 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
                 propagator.set(protocol)
             }
 
+            "wait" -> {
+                val result = commands.Wait().run(protocol)
+                responder.sendInteger(result, sendChannel)
+            }
+
 
             else -> error("unknown command ${protocol.arguments[0]}")
         }
