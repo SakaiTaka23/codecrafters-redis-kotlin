@@ -52,4 +52,6 @@ public class Server(args: Array<String>) : KoinComponent {
     }
 
     public fun getOffset(): Long = masterReader.totalBytesRead
+
+    public fun getReplicaCount(): Int = replicaClients.size
 }
