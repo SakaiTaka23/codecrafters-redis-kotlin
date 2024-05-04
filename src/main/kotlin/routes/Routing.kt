@@ -30,7 +30,7 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
                     try {
                         while (true) {
                             val command = reader.read(receiveChannel)
-                            defineRoutes(command, sendChanel)
+                            masterRoutes(command, sendChanel)
                         }
                     } catch (e: Throwable) {
                         println("Connection lost $e")
@@ -47,7 +47,7 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
                 try {
                     while (true) {
                         val command = reader.read(server.masterReader)
-                        defineRoutes(command, server.masterWriter)
+                        propagateRoutes(command, server.masterWriter)
                     }
                 } catch (e: Throwable) {
                     println("Connection lost with master $e")
@@ -56,7 +56,7 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
         }
     }
 
-    private suspend fun defineRoutes(protocol: Protocol, sendChannel: ByteWriteChannel) {
+    private suspend fun masterRoutes(protocol: Protocol, sendChannel: ByteWriteChannel) {
         when (protocol.arguments[0]) {
             "echo" -> {
                 val result = commands.Echo().run(protocol)
@@ -97,6 +97,21 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
                 propagator.set(protocol)
             }
 
+
+            else -> error("unknown command ${protocol.arguments[0]}")
+        }
+    }
+
+    private suspend fun propagateRoutes(protocol: Protocol, sendChannel: ByteWriteChannel) {
+        when (protocol.arguments[0]) {
+            "replconf" -> {
+                val result = commands.ReplconfAck().run(protocol)
+                responder.sendArray(result, sendChannel)
+            }
+
+            "set" -> {
+                commands.Set().run(protocol)
+            }
 
             else -> error("unknown command ${protocol.arguments[0]}")
         }
