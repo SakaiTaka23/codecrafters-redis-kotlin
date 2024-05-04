@@ -29,6 +29,13 @@ public class EncoderTest {
     }
 
     @Test
+    public fun `can encode integer`() {
+        val protocol = Protocol(mutableListOf("100"))
+        val result = protocol.integer()
+        assertEquals(":100\r\n", result)
+    }
+
+    @Test
     public fun `can encode simple string`() {
         val protocol = Protocol(mutableListOf("OK"))
         val result = protocol.simpleString()

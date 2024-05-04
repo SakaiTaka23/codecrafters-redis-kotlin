@@ -37,6 +37,8 @@ public fun Protocol.bulkString(): MutableList<String> {
     return result
 }
 
+public fun Protocol.integer(): String = ":${this.arguments[0]}".addCRCL()
+
 public fun Protocol.rdbFile(): String = this.arguments[0]
 
 public fun Protocol.simpleString(): String {
