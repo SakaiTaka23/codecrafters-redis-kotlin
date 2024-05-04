@@ -104,6 +104,10 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
 
     private suspend fun propagateRoutes(protocol: Protocol, sendChannel: ByteWriteChannel) {
         when (protocol.arguments[0]) {
+            "ping" -> {
+                commands.Ping().run(protocol)
+            }
+
             "replconf" -> {
                 val result = commands.ReplconfAck().run(protocol)
                 responder.sendArray(result, sendChannel)

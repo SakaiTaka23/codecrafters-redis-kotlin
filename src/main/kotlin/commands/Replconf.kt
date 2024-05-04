@@ -1,15 +1,26 @@
 package commands
 
+import config.Server
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import resp.Protocol
+import kotlin.math.max
+
+private const val GETACK_BYTE_SIZE = 37
+private const val HANDSHAKE_BYTE_SIZE = 166
 
 public class Replconf : CommandRoutes {
     override fun run(protocol: Protocol): Protocol = Protocol(mutableListOf("OK"))
 }
 
-public class ReplconfAck : CommandRoutes {
+public class ReplconfAck : CommandRoutes, KoinComponent {
+    private val server: Server by inject()
+
     override fun run(protocol: Protocol): Protocol {
         if (protocol.arguments[1] == "GETACK") {
-            return Protocol(mutableListOf("REPLCONF", "ACK", "0"))
+            val offset = max(server.getOffset() - HANDSHAKE_BYTE_SIZE - GETACK_BYTE_SIZE, 0)
+            val offsetStr = offset.toString()
+            return Protocol(mutableListOf("REPLCONF", "ACK", offsetStr))
         } else {
             error("invalid command")
         }
