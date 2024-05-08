@@ -2,6 +2,7 @@ import commands.Get
 import commands.Set
 import java.time.Clock
 import java.time.ZoneId
+import kotlinx.coroutines.channels.Channel
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import presentor.Responder
@@ -10,6 +11,7 @@ import replicator.Propagator
 import repository.IStorage
 import repository.InMemory
 import resp.Decoder
+import resp.Protocol
 
 public val appModule: Module = module {
     single<IStorage> { InMemory() }
@@ -20,6 +22,7 @@ public val appModule: Module = module {
 
 public val propagateModule: Module = module {
     single { Propagator() }
+    single { propagateChannel }
 }
 
 public val readerModule: Module = module {
@@ -30,3 +33,5 @@ public val readerModule: Module = module {
 public val responderModule: Module = module {
     single { Responder() }
 }
+
+private val propagateChannel: Channel<Protocol> = Channel(Channel.UNLIMITED)

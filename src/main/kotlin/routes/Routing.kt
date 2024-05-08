@@ -5,20 +5,20 @@ import io.ktor.network.sockets.ServerSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.ByteWriteChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import presentor.Responder
 import reciever.Reader
-import replicator.Propagator
 import resp.Protocol
 
 public class Routing(private val socket: ServerSocket) : KoinComponent {
-    private val propagator: Propagator by inject()
     private val reader: Reader by inject()
     private val responder: Responder by inject()
     private val server: Server by inject()
+    private val propageteChannel: Channel<Protocol> by inject()
 
     public suspend fun start() {
         coroutineScope {
@@ -94,7 +94,7 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
             "set" -> {
                 val result = commands.Set().run(protocol)
                 responder.sendSimpleString(result, sendChannel)
-                propagator.set(protocol)
+                propageteChannel.send(protocol)
             }
 
             "wait" -> {
