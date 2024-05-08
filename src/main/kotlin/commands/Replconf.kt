@@ -9,8 +9,17 @@ import kotlin.math.max
 private const val GETACK_BYTE_SIZE = 37
 private const val HANDSHAKE_BYTE_SIZE = 166
 
-public class Replconf : CommandRoutes {
-    override fun run(protocol: Protocol): Protocol = Protocol(mutableListOf("OK"))
+public class Replconf : KoinComponent {
+    private val server: Server by inject()
+
+    public suspend fun run(protocol: Protocol): Protocol {
+        if (protocol.arguments[1] == "ACK") {
+            server.propagateResultChannel.send(protocol.arguments[2].toInt())
+            return Protocol(mutableListOf())
+        }
+
+        return Protocol(mutableListOf("OK"))
+    }
 }
 
 public class ReplconfAck : CommandRoutes, KoinComponent {

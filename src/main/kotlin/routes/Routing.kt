@@ -4,6 +4,7 @@ import config.Server
 import io.ktor.network.sockets.ServerSocket
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
+import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -18,7 +19,7 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
     private val reader: Reader by inject()
     private val responder: Responder by inject()
     private val server: Server by inject()
-    private val propageteChannel: Channel<Protocol> by inject()
+    private val propagateChannel: Channel<Protocol> by inject()
 
     public suspend fun start() {
         coroutineScope {
@@ -30,7 +31,8 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
                     try {
                         while (true) {
                             val command = reader.read(receiveChannel)
-                            masterRoutes(command, sendChanel)
+                            masterRoutes(command, receiveChannel, sendChanel)
+                            server.lastCommand = command
                         }
                     } catch (e: Throwable) {
                         println("Connection lost $e")
@@ -56,7 +58,11 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
         }
     }
 
-    private suspend fun masterRoutes(protocol: Protocol, sendChannel: ByteWriteChannel) {
+    private suspend fun masterRoutes(
+        protocol: Protocol,
+        receiveChannel: ByteReadChannel,
+        sendChannel: ByteWriteChannel
+    ) {
         when (protocol.arguments[0]) {
             "echo" -> {
                 val result = commands.Echo().run(protocol)
@@ -81,20 +87,22 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
             "psync" -> {
                 val result = commands.Psync().run(protocol)
                 responder.sendSimpleString(result, sendChannel)
-                commands.Psync().saveClient(sendChannel)
+                commands.Psync().saveClient(receiveChannel, sendChannel)
                 val rdbFile = commands.Psync().emptyRDBFile()
                 responder.sendRdbFile(rdbFile, sendChannel)
             }
 
             "replconf" -> {
                 val result = commands.Replconf().run(protocol)
-                responder.sendSimpleString(result, sendChannel)
+                if (result.arguments.getOrNull(0) == "OK") {
+                    responder.sendSimpleString(result, sendChannel)
+                }
             }
 
             "set" -> {
                 val result = commands.Set().run(protocol)
                 responder.sendSimpleString(result, sendChannel)
-                propageteChannel.send(protocol)
+                propagateChannel.send(protocol)
             }
 
             "wait" -> {

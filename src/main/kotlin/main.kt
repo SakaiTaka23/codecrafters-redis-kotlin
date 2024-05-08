@@ -8,6 +8,7 @@ import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import replicator.HandShake
+import replicator.Propagator
 import routes.Routing
 
 public suspend fun main(args: Array<String>) {
@@ -24,6 +25,7 @@ public suspend fun main(args: Array<String>) {
     }
 
     val server = GlobalContext.get().get<Server>()
+    val propagator = GlobalContext.get().get<Propagator>()
 
     coroutineScope {
         val selectorManager = SelectorManager(Dispatchers.IO)
@@ -35,6 +37,8 @@ public suspend fun main(args: Array<String>) {
                 HandShake().run()
                 Routing(serverSocket).readPropagate()
             }
+        } else {
+            launch { propagator.run() }
         }
         launch {
             Routing(serverSocket).start()

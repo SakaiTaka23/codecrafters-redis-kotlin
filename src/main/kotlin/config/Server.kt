@@ -2,9 +2,13 @@ package config
 
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
+import kotlinx.coroutines.channels.Channel
 import org.koin.core.component.KoinComponent
+import resp.Protocol
 
 private const val DEFAULT_REDIS_PORT = 6379
+
+public class ReplicaClient(public val reader: ByteReadChannel, public val writer: ByteWriteChannel)
 
 public class Server(args: Array<String>) : KoinComponent {
     public var port: Int = DEFAULT_REDIS_PORT
@@ -12,7 +16,9 @@ public class Server(args: Array<String>) : KoinComponent {
 
     public var masterHost: String? = null
     public var masterPort: Int? = null
-    public val replicaClients: MutableList<ByteWriteChannel> = mutableListOf()
+    public val replicaClients: MutableList<ReplicaClient> = mutableListOf()
+    public var lastCommand: Protocol = Protocol(mutableListOf())
+    public var propagateResultChannel: Channel<Int> = Channel(Channel.UNLIMITED)
 
     public lateinit var masterReader: ByteReadChannel
     public lateinit var masterWriter: ByteWriteChannel
@@ -25,8 +31,8 @@ public class Server(args: Array<String>) : KoinComponent {
         checkOptions(args)
     }
 
-    public fun addReplicaChannel(client: ByteWriteChannel) {
-        replicaClients.add(client)
+    public fun addReplicaChannel(reader: ByteReadChannel, writer: ByteWriteChannel) {
+        replicaClients.add(ReplicaClient(reader, writer))
     }
 
     private fun checkOptions(args: Array<String>) {
@@ -54,4 +60,13 @@ public class Server(args: Array<String>) : KoinComponent {
     public fun getOffset(): Long = masterReader.totalBytesRead
 
     public fun getReplicaCount(): Int = replicaClients.size
+
+    public fun offsetFromMasterToClient(): Long {
+        var count: Long = 0
+        replicaClients.forEach {
+            count += it.reader.totalBytesRead
+        }
+
+        return count
+    }
 }
