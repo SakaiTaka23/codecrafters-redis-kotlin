@@ -64,6 +64,11 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
         sendChannel: ByteWriteChannel
     ) {
         when (protocol.arguments[0]) {
+            "config" -> {
+                val result = commands.Config().run(protocol)
+                responder.sendArray(result, sendChannel)
+            }
+
             "echo" -> {
                 val result = commands.Echo().run(protocol)
                 responder.sendBulkString(result, sendChannel)
