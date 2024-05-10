@@ -10,7 +10,7 @@ import resp.integer
 import resp.rdbFileSize
 import resp.simpleString
 
-public class Responder {
+public object Responder {
     public suspend fun sendBulkString(protocol: Protocol, sender: ByteWriteChannel) {
         val result = protocol.bulkString()
         result.forEach {

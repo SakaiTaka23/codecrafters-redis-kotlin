@@ -31,7 +31,7 @@ public val readerModule: Module = module {
 }
 
 public val responderModule: Module = module {
-    single { Responder() }
+    single { Responder }
 }
 
 private val propagateChannel: Channel<Protocol> = Channel(Channel.UNLIMITED)
