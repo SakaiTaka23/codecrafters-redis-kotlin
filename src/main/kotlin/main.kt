@@ -1,7 +1,9 @@
 import config.Server
 import io.ktor.network.selector.SelectorManager
 import io.ktor.network.sockets.aSocket
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.koin.core.context.GlobalContext
@@ -26,6 +28,7 @@ public suspend fun main(args: Array<String>) {
 
     val server = GlobalContext.get().get<Server>()
     val propagator = GlobalContext.get().get<Propagator>()
+    val readPropagateJob = Job()
 
     coroutineScope {
         val selectorManager = SelectorManager(Dispatchers.IO)
@@ -35,7 +38,9 @@ public suspend fun main(args: Array<String>) {
             println("Server is in slave mode connecting to ${server.masterHost}:${server.masterPort}")
             launch {
                 HandShake().run()
-                Routing(serverSocket).readPropagate()
+                with(Routing(serverSocket)) {
+                    CoroutineScope(readPropagateJob).readPropagate()
+                }
             }
         } else {
             launch { propagator.run() }

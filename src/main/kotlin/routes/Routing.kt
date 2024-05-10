@@ -6,6 +6,7 @@ import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -43,17 +44,15 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
         }
     }
 
-    public suspend fun readPropagate() {
-        coroutineScope {
-            launch {
-                try {
-                    while (true) {
-                        val command = reader.read(server.masterReader)
-                        propagateRoutes(command, server.masterWriter)
-                    }
-                } catch (e: Throwable) {
-                    println("Connection lost with master $e")
+    public fun CoroutineScope.readPropagate() {
+        launch {
+            try {
+                while (true) {
+                    val command = reader.read(server.masterReader)
+                    propagateRoutes(command, server.masterWriter)
                 }
+            } catch (e: Throwable) {
+                println("Connection lost with master $e")
             }
         }
     }
