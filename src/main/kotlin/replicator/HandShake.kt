@@ -29,8 +29,11 @@ public class HandShake : KoinComponent {
     }
 
     private suspend fun createClient() {
+        val hostname = checkNotNull(server.masterHost) { "Illegal State: Hostname should not be null" }
+        val port = checkNotNull(server.masterPort) { "Illegal State: Port should not be null" }
+
         val selectorManager = SelectorManager(Dispatchers.IO)
-        val socket = aSocket(selectorManager).tcp().connect(server.masterHost!!, server.masterPort!!)
+        val socket = aSocket(selectorManager).tcp().connect(hostname, port)
         server.masterWriter = socket.openWriteChannel(autoFlush = true)
         server.masterReader = socket.openReadChannel()
     }
