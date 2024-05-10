@@ -1,8 +1,8 @@
 package replicator
 
 import config.Server
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -25,12 +25,10 @@ public class Propagator : KoinComponent {
         }
     }
 
-    public suspend fun sendAck() {
-        coroutineScope {
-            launch {
-                server.replicaClients.map { client ->
-                    sender.sendArray(ackProtocol, client.writer)
-                }
+    public fun CoroutineScope.sendAck() {
+        launch {
+            server.replicaClients.map { client ->
+                sender.sendArray(ackProtocol, client.writer)
             }
         }
     }

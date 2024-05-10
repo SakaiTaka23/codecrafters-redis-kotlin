@@ -1,6 +1,8 @@
 package commands
 
 import config.Server
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
@@ -13,6 +15,7 @@ import resp.Protocol
 public class Wait : KoinComponent {
     private val server: Server by inject()
     private val propagator: Propagator by inject()
+    private val backgroundTasks = Job()
 
     public suspend fun run(protocol: Protocol): Protocol {
         val command = server.lastCommand.arguments.getOrNull(0)
@@ -25,7 +28,9 @@ public class Wait : KoinComponent {
         val timeLimit = protocol.arguments[2].toLong()
         server.propagateResultChannel = Channel(Channel.UNLIMITED)
 
-        propagator.sendAck()
+        with(propagator) {
+            CoroutineScope(backgroundTasks).sendAck()
+        }
 
         var currentByte = 0
         var got = 0
@@ -34,7 +39,6 @@ public class Wait : KoinComponent {
             withTimeout(timeLimit) {
                 while (isActive) {
                     val count = server.propagateResultChannel.receive()
-                    println("got it!")
                     got += 1
                     currentByte += count
                     if (got >= goalReplica) {
