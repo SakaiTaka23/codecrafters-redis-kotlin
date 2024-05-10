@@ -16,15 +16,15 @@ private const val KEY = "key"
 private const val VALUE = "value"
 
 public class InMemoryTest : KoinTest {
-    private val repo: IStorage by inject()
-    private val repo2: IStorage by inject()
+    private val repo: Storage by inject()
+    private val repo2: Storage by inject()
 
     @BeforeTest
     public fun beforeTest() {
         startKoin {
             modules(
                 module {
-                    single<IStorage> { InMemory() }
+                    single<Storage> { InMemory() }
                 }
             )
         }

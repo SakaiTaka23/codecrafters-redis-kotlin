@@ -3,7 +3,7 @@ package repository
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
-public class InMemory : IStorage {
+public class InMemory : Storage {
     private val data = ConcurrentHashMap<String, Pair<String, Instant?>>()
 
     public override fun set(key: String, value: String, expires: Instant?) {

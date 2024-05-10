@@ -11,7 +11,7 @@ import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
-import repository.IStorage
+import repository.Storage
 import resp.Protocol
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -22,7 +22,7 @@ private const val KEY: String = "key"
 private const val VALUE: String = "value"
 
 public class SetTest : KoinTest {
-    private val repo: IStorage = mockk<IStorage>()
+    private val repo: Storage = mockk<Storage>()
     private val fixedClock = Clock.fixed(Instant.parse("2024-04-01T00:00:00Z"), ZoneOffset.UTC)
     private val now = Instant.now(fixedClock)
     private val argKey: CapturingSlot<String> = slot<String>()
@@ -34,7 +34,7 @@ public class SetTest : KoinTest {
         startKoin {
             modules(
                 module {
-                    single<IStorage> { repo }
+                    single<Storage> { repo }
                     single<Clock> { fixedClock }
                 }
             )

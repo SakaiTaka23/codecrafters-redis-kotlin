@@ -8,13 +8,13 @@ import org.koin.dsl.module
 import presentor.Responder
 import reciever.Reader
 import replicator.Propagator
-import repository.IStorage
 import repository.InMemory
+import repository.Storage
 import resp.Decoder
 import resp.Protocol
 
 public val appModule: Module = module {
-    single<IStorage> { InMemory() }
+    single<Storage> { InMemory() }
     single<Clock> { Clock.system(ZoneId.of("Asia/Tokyo")) }
     single { Get() }
     single { Set() }
