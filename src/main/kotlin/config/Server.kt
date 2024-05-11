@@ -23,9 +23,11 @@ public class Server(args: Array<String>) : KoinComponent {
     public lateinit var masterReader: ByteReadChannel
     public lateinit var masterWriter: ByteWriteChannel
 
-    public
-    var replID: String = ""
+    public var replID: String = ""
     public var replOffset: Int = 0
+
+    public var dir: String = ""
+    public var dbfilename: String = ""
 
     init {
         checkOptions(args)
@@ -48,6 +50,12 @@ public class Server(args: Array<String>) : KoinComponent {
                 args[i + 2].toIntOrNull()?.let {
                     masterPort = it
                 }
+            }
+            if (args[i] == "--dir" && i + 1 <= args.size) {
+                dir = args[i + 1]
+            }
+            if (args[i] == "dbfilename" && i + 1 <= args.size) {
+                dbfilename = args[i + 1]
             }
         }
 
