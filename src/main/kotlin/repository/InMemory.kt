@@ -20,6 +20,8 @@ public class InMemory : Storage {
         return value
     }
 
+    override fun getAllKey(): MutableList<String> = data.keys().toList().toMutableList()
+
     public override fun delete(key: String) {
         data.remove(key)
     }

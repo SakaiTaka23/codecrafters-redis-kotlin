@@ -78,6 +78,11 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
                 responder.sendBulkString(result, sendChannel)
             }
 
+            "keys" -> {
+                val result = commands.Keys().run(protocol)
+                responder.sendArray(result, sendChannel)
+            }
+
             "ping" -> {
                 val result = commands.Ping().run(protocol)
                 responder.sendSimpleString(result, sendChannel)
