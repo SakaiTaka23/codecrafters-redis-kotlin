@@ -4,6 +4,9 @@ import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
 import kotlinx.coroutines.channels.Channel
 import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
+import rdbreader.Parser
+import repository.Storage
 import resp.Protocol
 
 private const val DEFAULT_REDIS_PORT = 6379
@@ -11,6 +14,8 @@ private const val DEFAULT_REDIS_PORT = 6379
 public class ReplicaClient(public val reader: ByteReadChannel, public val writer: ByteWriteChannel)
 
 public class Server(args: Array<String>) : KoinComponent {
+    private val storage: Storage by inject()
+
     public var port: Int = DEFAULT_REDIS_PORT
     public var isSlave: Boolean = false
 
@@ -31,6 +36,18 @@ public class Server(args: Array<String>) : KoinComponent {
 
     init {
         checkOptions(args)
+        if (dir.isNotBlank() && dbfilename.isNotBlank()) {
+            val datas = Parser.read(dir, dbfilename)
+
+            datas.forEach { data ->
+                val expire = data.value.getExpiredDate()
+                if (expire != null) {
+                    storage.set(data.key, data.value.getValue(), data.value.getExpiredDate())
+                } else {
+                    storage.set(data.key, data.value.getValue())
+                }
+            }
+        }
     }
 
     public fun addReplicaChannel(reader: ByteReadChannel, writer: ByteWriteChannel) {
@@ -54,7 +71,7 @@ public class Server(args: Array<String>) : KoinComponent {
             if (args[i] == "--dir" && i + 1 <= args.size) {
                 dir = args[i + 1]
             }
-            if (args[i] == "dbfilename" && i + 1 <= args.size) {
+            if (args[i] == "--dbfilename" && i + 1 <= args.size) {
                 dbfilename = args[i + 1]
             }
         }
