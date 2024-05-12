@@ -23,8 +23,7 @@ public class Server(args: Array<String>) : KoinComponent {
     public var masterPort: Int? = null
     public val replicaClients: MutableList<ReplicaClient> = mutableListOf()
     public var lastCommand: Protocol = Protocol(mutableListOf())
-    public var propagateResultChannel: Channel<Int> = Channel(Channel.UNLIMITED)
-
+    public val propagateResultChannel: Channel<Int> = Channel(Channel.UNLIMITED)
     public lateinit var masterReader: ByteReadChannel
     public lateinit var masterWriter: ByteWriteChannel
 
