@@ -13,7 +13,7 @@ import reciever.Reader
 import resp.Protocol
 import resp.isOK
 
-private val HANDSHAKE_ERROR: Nothing = error("Failed to create connection with master node")
+private object HandshakeError : Throwable("Failed to create connection with master node")
 
 public class HandShake : KoinComponent {
     private val server: Server by inject()
@@ -29,8 +29,11 @@ public class HandShake : KoinComponent {
     }
 
     private suspend fun createClient() {
+        val hostname = checkNotNull(server.masterHost) { "Illegal State: Hostname should not be null" }
+        val port = checkNotNull(server.masterPort) { "Illegal State: Port should not be null" }
+
         val selectorManager = SelectorManager(Dispatchers.IO)
-        val socket = aSocket(selectorManager).tcp().connect(server.masterHost!!, server.masterPort!!)
+        val socket = aSocket(selectorManager).tcp().connect(hostname, port)
         server.masterWriter = socket.openWriteChannel(autoFlush = true)
         server.masterReader = socket.openReadChannel()
     }
@@ -38,7 +41,7 @@ public class HandShake : KoinComponent {
     private suspend fun sendPING() {
         client.sendArray(Protocol(mutableListOf("ping")), server.masterWriter)
         if (reader.read(server.masterReader).arguments[0] != "PONG") {
-            HANDSHAKE_ERROR
+            throw HandshakeError
         }
     }
 
@@ -47,11 +50,11 @@ public class HandShake : KoinComponent {
             Protocol(mutableListOf("REPLCONF", "listening-port", "${server.port}")), server.masterWriter
         )
         if (!reader.read(server.masterReader).isOK()) {
-            HANDSHAKE_ERROR
+            throw HandshakeError
         }
         client.sendArray(Protocol(mutableListOf("REPLCONF", "capa", "psync2")), server.masterWriter)
         if (!reader.read(server.masterReader).isOK()) {
-            HANDSHAKE_ERROR
+            throw HandshakeError
         }
     }
 
@@ -61,7 +64,7 @@ public class HandShake : KoinComponent {
         client.sendArray(Protocol(mutableListOf("PSYNC", "?", "-1")), server.masterWriter)
         val result = reader.read(server.masterReader).arguments[0]
         if (!result.startsWith("FULLRESYNC")) {
-            HANDSHAKE_ERROR
+            throw HandshakeError
         }
         // read rdb file
         reader.readRdb(server.masterReader)

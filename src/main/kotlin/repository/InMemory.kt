@@ -3,7 +3,7 @@ package repository
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
-public class InMemory : IStorage {
+public class InMemory : Storage {
     private val data = ConcurrentHashMap<String, Pair<String, Instant?>>()
 
     public override fun set(key: String, value: String, expires: Instant?) {
@@ -19,6 +19,8 @@ public class InMemory : IStorage {
 
         return value
     }
+
+    override fun getAllKey(): MutableList<String> = data.keys().toList().toMutableList()
 
     public override fun delete(key: String) {
         data.remove(key)

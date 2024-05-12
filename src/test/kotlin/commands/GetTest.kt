@@ -5,8 +5,8 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.inject
-import repository.IStorage
 import repository.InMemory
+import repository.Storage
 import resp.Protocol
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -17,14 +17,14 @@ private const val KEY = "key"
 private const val VALUE = "value"
 
 public class GetTest : KoinTest {
-    private val repo: IStorage by inject()
+    private val repo: Storage by inject()
 
     @BeforeTest
     public fun beforeTest() {
         startKoin {
             modules(
                 module {
-                    single<IStorage> { InMemory() }
+                    single<Storage> { InMemory() }
                 }
             )
         }
