@@ -1,5 +1,6 @@
 package commands
 
+import config.Replica
 import config.Server
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -23,11 +24,11 @@ public class Replconf : KoinComponent {
 }
 
 public class ReplconfAck : CommandRoutes, KoinComponent {
-    private val server: Server by inject()
+    private val replica = Replica.getInstance()
 
     override fun run(protocol: Protocol): Protocol {
         if (protocol.arguments[1] == "GETACK") {
-            val offset = max(server.getOffset() - HANDSHAKE_BYTE_SIZE - GETACK_BYTE_SIZE, 0)
+            val offset = max(replica.getOffset() - HANDSHAKE_BYTE_SIZE - GETACK_BYTE_SIZE, 0)
             val offsetStr = offset.toString()
             return Protocol(mutableListOf("REPLCONF", "ACK", offsetStr))
         } else {

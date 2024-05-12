@@ -1,5 +1,6 @@
 package routes
 
+import config.Replica
 import config.Server
 import io.ktor.network.sockets.ServerSocket
 import io.ktor.network.sockets.openReadChannel
@@ -44,12 +45,12 @@ public class Routing(private val socket: ServerSocket) : KoinComponent {
         }
     }
 
-    public fun CoroutineScope.readPropagate() {
+    public fun CoroutineScope.readPropagate(replica: Replica) {
         launch {
             try {
                 while (true) {
-                    val command = reader.read(server.masterReader)
-                    propagateRoutes(command, server.masterWriter)
+                    val command = reader.read(replica.reader)
+                    propagateRoutes(command, replica.writer)
                 }
             } catch (e: Throwable) {
                 println("Connection lost with master $e")
