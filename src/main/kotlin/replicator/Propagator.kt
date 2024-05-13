@@ -4,17 +4,16 @@ import config.Server
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import presentor.Responder
 import resp.Protocol
 
 
-public class Propagator : KoinComponent {
+public class Propagator(
+    private val server: Server,
+    private val sender: Responder,
+    private val propagateCommandChannel : Channel<Protocol>
+) {
     private val ackProtocol = Protocol(mutableListOf("REPLCONF", "GETACK", "*"))
-    private val server: Server by inject()
-    private val sender: Responder by inject()
-    private val propagateCommandChannel: Channel<Protocol> by inject()
 
     public suspend fun run() {
         while (true) {
