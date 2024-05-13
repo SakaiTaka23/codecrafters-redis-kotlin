@@ -1,3 +1,4 @@
+
 import config.Replica
 import config.Server
 import io.ktor.network.selector.SelectorManager
@@ -8,14 +9,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import org.koin.core.context.startKoin
-import org.koin.dsl.module
 import presentor.Responder
 import rdbreader.Parser
 import reciever.Reader
 import replicator.HandShake
 import replicator.Propagator
 import repository.InMemory
+import resp.Decoder
 import resp.Protocol
 import routes.Routing
 
@@ -35,7 +35,10 @@ public suspend fun main(args: Array<String>) {
         }
     }
 
-    val server = Server.getInstance(
+    val propagateResultChannel = Channel<Int>(Channel.UNLIMITED)
+    val propagateChannel = Channel<Protocol>(Channel.UNLIMITED)
+
+    val server = Server(
         inputConfig.port,
         inputConfig.isSlave,
         inputConfig.replID,
@@ -43,27 +46,16 @@ public suspend fun main(args: Array<String>) {
         inputConfig.dir,
         inputConfig.dbfilename,
         Protocol(mutableListOf()),
-        Channel(Channel.UNLIMITED),
+        propagateResultChannel,
         mutableListOf(),
     )
 
     if (inputConfig.isSlave) {
-        HandShake(inputConfig.port, Responder, Reader()).run(inputConfig.masterHost, inputConfig.masterPort)
+        HandShake(inputConfig.port, Responder, Reader(Decoder)).run(inputConfig.masterHost, inputConfig.masterPort)
     }
-    val propagator = Propagator()
+    val propagator = Propagator(server, Responder, propagateChannel)
+    val reader = Reader(Decoder)
     val readPropagateJob = Job()
-
-    startKoin {
-        modules(
-            appModule,
-            propagateModule,
-            readerModule,
-            responderModule,
-            module {
-                single { server }
-            }
-        )
-    }
 
     coroutineScope {
         val selectorManager = SelectorManager(Dispatchers.IO)
@@ -72,7 +64,15 @@ public suspend fun main(args: Array<String>) {
         if (inputConfig.isSlave) {
             println("Server is in slave mode connecting to ${inputConfig.masterHost}:${inputConfig.masterPort}")
             launch {
-                with(Routing(serverSocket)) {
+                with(Routing(
+                    propagateChannel,
+                    propagator,
+                    reader,
+                    storage,
+                    Responder,
+                    server,
+                    serverSocket
+                )) {
                     CoroutineScope(readPropagateJob).readPropagate(Replica.getInstance())
                 }
             }
@@ -80,7 +80,15 @@ public suspend fun main(args: Array<String>) {
             launch { propagator.run() }
         }
         launch {
-            Routing(serverSocket).start()
+            Routing(
+                propagateChannel,
+                propagator,
+                reader,
+                storage,
+                Responder,
+                server,
+                serverSocket
+            ).start()
         }
     }
 }
