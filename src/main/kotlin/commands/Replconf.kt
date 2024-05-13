@@ -10,7 +10,7 @@ private const val HANDSHAKE_BYTE_SIZE = 166
 
 public class Replconf(private val server: Server) {
     public suspend fun run(protocol: Protocol): Protocol {
-        if (protocol.arguments[1] == "ACK") {
+        if (protocol.arguments.getOrNull(1) == "ACK") {
             server.propagateResultChannel.send(protocol.arguments[2].toInt())
             return Protocol(mutableListOf())
         }
