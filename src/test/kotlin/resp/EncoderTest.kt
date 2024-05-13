@@ -1,49 +1,40 @@
 package resp
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
 
-public class EncoderTest {
-    @Test
-    public fun `can encode array`() {
+public class EncoderTest : ShouldSpec({
+    should("encode array") {
         val protocol = Protocol(mutableListOf("some", "same"))
         val result = protocol.encodeArray()
-        assertEquals(
-            mutableListOf("*2\r\n", "$4\r\n", "some\r\n", "$4\r\n", "same\r\n"),
-            result
-        )
+        result shouldBe mutableListOf("*2\r\n", "$4\r\n", "some\r\n", "$4\r\n", "same\r\n")
     }
 
-    @Test
-    public fun `returns null bulk string on empty bulk string`() {
+    should("return null bulk string on empty bulk string") {
         val protocol = Protocol(mutableListOf("-1"))
         val result = protocol.bulkString()
-        assertEquals(mutableListOf("\$-1\r\n"), result)
+        result shouldBe mutableListOf("\$-1\r\n")
     }
 
-    @Test
-    public fun `can encode bulk string`() {
+    should("encode bulk string") {
         val protocol = Protocol(mutableListOf("some"))
         val result = protocol.bulkString()
-        assertEquals(mutableListOf("\$4\r\n", "some\r\n"), result)
+        result shouldBe mutableListOf("\$4\r\n", "some\r\n")
     }
 
-    @Test
-    public fun `can encode integer`() {
+    should("encode integer") {
         val protocol = Protocol(mutableListOf("100"))
         val result = protocol.integer()
-        assertEquals(":100\r\n", result)
+        result shouldBe ":100\r\n"
     }
 
-    @Test
-    public fun `can encode simple string`() {
+    should("encode simple string") {
         val protocol = Protocol(mutableListOf("OK"))
         val result = protocol.simpleString()
-        assertEquals("+OK\r\n", result)
+        result shouldBe "+OK\r\n"
     }
 
-    @Test
-    public fun `can encode simple string with multiple content`() {
+    should("encode simple string with multiple content") {
         val protocol = Protocol(
             mutableListOf(
                 "FULLRESYNC",
@@ -51,9 +42,6 @@ public class EncoderTest {
             )
         )
         val result = protocol.simpleString()
-        assertEquals(
-            "+FULLRESYNC REPL_ID 0\r\n",
-            result
-        )
+        result shouldBe "+FULLRESYNC REPL_ID 0\r\n"
     }
-}
+})
