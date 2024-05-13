@@ -4,9 +4,7 @@ import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 
 public class InMemory : Storage {
-    private companion object {
-        private val data = ConcurrentHashMap<String, Pair<String, Instant?>>()
-    }
+    private val data = ConcurrentHashMap<String, Pair<String, Instant?>>()
 
     public override fun set(key: String, value: String, expires: Instant?) {
         data[key] = value to expires

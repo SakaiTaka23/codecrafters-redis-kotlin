@@ -18,12 +18,14 @@ public class HandShake(
     private val client: Responder,
     private val reader: Reader
 ) {
-    public suspend fun run(masterHost: String?, masterPort: Int?) {
+    public suspend fun run(masterHost: String?, masterPort: Int?): Replica {
         val masterConnection = createClient(masterHost, masterPort)
         sendPING(masterConnection)
         sendREPLCONF(masterConnection)
         sendPSYNC(masterConnection)
         println("finished handshake successfully")
+
+        return masterConnection
     }
 
     private suspend fun createClient(masterHost: String?, masterPort: Int?): Replica {
@@ -32,7 +34,7 @@ public class HandShake(
 
         val selectorManager = SelectorManager(Dispatchers.IO)
         val socket = aSocket(selectorManager).tcp().connect(hostname, port)
-        return Replica.getInstance(
+        return Replica(
             socket.openReadChannel(),
             socket.openWriteChannel(autoFlush = true)
         )

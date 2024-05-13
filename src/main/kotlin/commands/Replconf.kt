@@ -19,9 +19,7 @@ public class Replconf(private val server: Server) {
     }
 }
 
-public class ReplconfAck : CommandRoutes {
-    private val replica = Replica.getInstance()
-
+public class ReplconfAck(private val replica: Replica) : CommandRoutes {
     override fun run(protocol: Protocol): Protocol {
         if (protocol.arguments[1] == "GETACK") {
             val offset = max(replica.getOffset() - HANDSHAKE_BYTE_SIZE - GETACK_BYTE_SIZE, 0)

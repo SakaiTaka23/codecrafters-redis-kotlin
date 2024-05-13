@@ -1,6 +1,5 @@
 package routes
 
-import config.Replica
 import config.Server
 import io.ktor.network.sockets.ServerSocket
 import io.ktor.network.sockets.openReadChannel
@@ -8,7 +7,6 @@ import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
 import java.time.Clock
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -46,19 +44,6 @@ public class Routing(
                         connection.close()
                     }
                 }
-            }
-        }
-    }
-
-    public fun CoroutineScope.readPropagate(replica: Replica) {
-        launch {
-            try {
-                while (true) {
-                    val command = reader.read(replica.reader)
-                    propagateRoutes(command, replica.writer)
-                }
-            } catch (e: Throwable) {
-                println("Connection lost with master $e")
             }
         }
     }
@@ -125,25 +110,6 @@ public class Routing(
                 responder.sendInteger(result, sendChannel)
             }
 
-
-            else -> error("unknown command ${protocol.arguments[0]}")
-        }
-    }
-
-    private suspend fun propagateRoutes(protocol: Protocol, sendChannel: ByteWriteChannel) {
-        when (protocol.arguments[0]) {
-            "ping" -> {
-                commands.Ping().run(protocol)
-            }
-
-            "replconf" -> {
-                val result = commands.ReplconfAck().run(protocol)
-                responder.sendArray(result, sendChannel)
-            }
-
-            "set" -> {
-                commands.Set(repo, Clock.systemUTC()).run(protocol)
-            }
 
             else -> error("unknown command ${protocol.arguments[0]}")
         }

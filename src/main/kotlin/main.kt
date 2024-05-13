@@ -1,5 +1,3 @@
-
-import config.Replica
 import config.Server
 import io.ktor.network.selector.SelectorManager
 import io.ktor.network.sockets.aSocket
@@ -17,6 +15,7 @@ import replicator.Propagator
 import repository.InMemory
 import resp.Decoder
 import resp.Protocol
+import routes.PropagateRouting
 import routes.Routing
 
 public suspend fun main(args: Array<String>) {
@@ -49,10 +48,6 @@ public suspend fun main(args: Array<String>) {
         propagateResultChannel,
         mutableListOf(),
     )
-
-    if (inputConfig.isSlave) {
-        HandShake(inputConfig.port, Responder, Reader(Decoder)).run(inputConfig.masterHost, inputConfig.masterPort)
-    }
     val propagator = Propagator(server, Responder, propagateChannel)
     val reader = Reader(Decoder)
     val readPropagateJob = Job()
@@ -62,18 +57,21 @@ public suspend fun main(args: Array<String>) {
         val serverSocket = aSocket(selectorManager).tcp().bind("127.0.0.1", inputConfig.port)
         println("Server started at ${serverSocket.localAddress}")
         if (inputConfig.isSlave) {
+            val masterConnection = HandShake(inputConfig.port, Responder, Reader(Decoder)).run(
+                inputConfig.masterHost,
+                inputConfig.masterPort
+            )
             println("Server is in slave mode connecting to ${inputConfig.masterHost}:${inputConfig.masterPort}")
             launch {
-                with(Routing(
-                    propagateChannel,
-                    propagator,
-                    reader,
-                    storage,
-                    Responder,
-                    server,
-                    serverSocket
-                )) {
-                    CoroutineScope(readPropagateJob).readPropagate(Replica.getInstance())
+                with(
+                    PropagateRouting(
+                        reader,
+                        masterConnection,
+                        storage,
+                        Responder
+                    )
+                ) {
+                    CoroutineScope(readPropagateJob).start()
                 }
             }
         } else {
