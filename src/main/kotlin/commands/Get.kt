@@ -1,11 +1,8 @@
 package commands
 
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import repository.Storage
 import resp.Protocol
 
-public class Get : CommandRoutes, KoinComponent {
-    private val repo: repository.Storage by inject()
-
+public class Get(private val repo: Storage) : CommandRoutes {
     override fun run(protocol: Protocol): Protocol = Protocol(mutableListOf(repo.get(protocol.arguments[1]) ?: "-1"))
 }

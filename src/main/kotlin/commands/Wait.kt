@@ -8,14 +8,13 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import replicator.Propagator
 import resp.Protocol
 
-public class Wait : KoinComponent {
-    private val server: Server by inject()
-    private val propagator: Propagator by inject()
+public class Wait(
+    private val server: Server,
+    private val propagator: Propagator
+) {
     private val backgroundTasks = Job()
     private val mutex = Mutex()
 

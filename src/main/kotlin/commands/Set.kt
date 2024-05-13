@@ -2,15 +2,13 @@ package commands
 
 import java.time.Clock
 import java.time.Instant
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import repository.Storage
 import resp.Protocol
 
-public class Set : CommandRoutes, KoinComponent {
-    private val repo: Storage by inject()
-    private val clock: Clock by inject()
-
+public class Set(
+    private val repo: Storage,
+    private val clock: Clock,
+) : CommandRoutes {
     override fun run(protocol: Protocol): Protocol {
         val expirationTime = checkOption(protocol)
 

@@ -2,17 +2,13 @@ package commands
 
 import config.Replica
 import config.Server
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import resp.Protocol
 import kotlin.math.max
 
 private const val GETACK_BYTE_SIZE = 37
 private const val HANDSHAKE_BYTE_SIZE = 166
 
-public class Replconf : KoinComponent {
-    private val server: Server by inject()
-
+public class Replconf(private val server: Server) {
     public suspend fun run(protocol: Protocol): Protocol {
         if (protocol.arguments[1] == "ACK") {
             server.propagateResultChannel.send(protocol.arguments[2].toInt())
@@ -23,7 +19,7 @@ public class Replconf : KoinComponent {
     }
 }
 
-public class ReplconfAck : CommandRoutes, KoinComponent {
+public class ReplconfAck : CommandRoutes {
     private val replica = Replica.getInstance()
 
     override fun run(protocol: Protocol): Protocol {
