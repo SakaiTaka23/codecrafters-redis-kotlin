@@ -13,7 +13,7 @@ public class Server(
     public val port: Int,
     public val isSlave: Boolean,
     public val replID: String,
-    public val replOffset: Int,
+    public var replOffset: Int,
     public val dir: String,
     public val dbfilename: String,
     public var lastCommand: Protocol,
@@ -27,13 +27,4 @@ public class Server(
     }
 
     public fun getReplicaCount(): Int = replicaClients.size
-
-    public fun offsetFromMasterToClient(): Long {
-        var count: Long = 0
-        replicaClients.forEach {
-            count += it.reader.totalBytesRead
-        }
-
-        return count
-    }
 }

@@ -20,6 +20,9 @@ public class Propagator(
             server.replicaClients.forEach { client ->
                 sender.sendArray(protocol, client.writer)
             }
+            val rawProtocol = protocol.arguments.joinToString(separator = "")
+            val size = rawProtocol.toByteArray().size
+            server.replOffset += size
         }
     }
 
