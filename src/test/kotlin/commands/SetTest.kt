@@ -6,11 +6,11 @@ import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import repository.Storage
+import resp.Protocol
 import java.time.Clock
 import java.time.Instant
 import java.time.ZoneOffset
-import repository.Storage
-import resp.Protocol
 
 private const val KEY: String = "key"
 private const val VALUE: String = "value"
@@ -37,7 +37,7 @@ public class SetTest : ShouldSpec({
         every {
             repo.set(
                 capture(argKey), capture(argValue),
-                captureNullable(argExpires)
+                captureNullable(argExpires),
             )
         } returns Unit
         val command = Protocol(mutableListOf("set", KEY, VALUE, "px", "100"))

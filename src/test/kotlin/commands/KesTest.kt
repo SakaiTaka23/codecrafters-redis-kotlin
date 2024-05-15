@@ -7,7 +7,6 @@ import io.mockk.mockk
 import repository.Storage
 import resp.Protocol
 
-
 public class KesTest : ShouldSpec({
     val storedKeys = mutableListOf("apple", "orange")
     val storage = mockk<Storage>()

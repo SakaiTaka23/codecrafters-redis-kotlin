@@ -11,10 +11,10 @@ public class Info(private val server: Server) : CommandRoutes {
             } else {
                 Protocol(
                     mutableListOf(
-                        "role:master\r\n"
-                                + "master_replid:${server.replID}\r\n"
-                                + "master_repl_offset:${server.replOffset}"
-                    )
+                        "role:master\r\n" +
+                            "master_replid:${server.replID}\r\n" +
+                            "master_repl_offset:${server.replOffset}",
+                    ),
                 )
             }
         }

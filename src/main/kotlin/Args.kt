@@ -8,7 +8,7 @@ public data class Args(
     public val dir: String,
     public val dbfilename: String,
     public val replID: String = "8371b4fb1155b71f4a04d3e1bc3e18c4a990aeeb",
-    public val replOffset: Int = 0
+    public val replOffset: Int = 0,
 )
 
 public fun Array<String>.checkArgs(): Args {

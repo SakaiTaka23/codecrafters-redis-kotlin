@@ -3,8 +3,8 @@ package commands
 import config.Server
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
-import java.util.Base64
 import resp.Protocol
+import java.util.Base64
 
 @Suppress("MaxLineLength")
 private const val EMPTY_RDB_FILE =
@@ -15,8 +15,10 @@ public class Psync(private val server: Server) : CommandRoutes {
         if (protocol.arguments[1] == "?" && protocol.arguments[2] == "-1") {
             Protocol(
                 mutableListOf(
-                    "FULLRESYNC", server.replID, server.replOffset.toString()
-                )
+                    "FULLRESYNC",
+                    server.replID,
+                    server.replOffset.toString(),
+                ),
             )
         } else {
             Protocol(mutableListOf())

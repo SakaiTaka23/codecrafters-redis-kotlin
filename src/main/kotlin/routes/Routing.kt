@@ -6,7 +6,6 @@ import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
-import java.time.Clock
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -15,6 +14,7 @@ import reciever.Reader
 import replicator.Propagator
 import repository.Storage
 import resp.Protocol
+import java.time.Clock
 
 @Suppress("LongParameterList")
 public class Routing(
@@ -51,7 +51,7 @@ public class Routing(
     private suspend fun masterRoutes(
         protocol: Protocol,
         receiveChannel: ByteReadChannel,
-        sendChannel: ByteWriteChannel
+        sendChannel: ByteWriteChannel,
     ) {
         when (protocol.arguments[0]) {
             "config" -> {
@@ -109,7 +109,6 @@ public class Routing(
                 val result = commands.Wait(server, propagator).run(protocol)
                 responder.sendInteger(result, sendChannel)
             }
-
 
             else -> error("unknown command ${protocol.arguments[0]}")
         }

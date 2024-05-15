@@ -23,8 +23,8 @@ public class ConfigTest : ShouldSpec({
         result shouldBe Protocol(
             mutableListOf(
                 "dir", DIR,
-                "dbname", DB_FILENAME
-            )
+                "dbname", DB_FILENAME,
+            ),
         )
     }
 

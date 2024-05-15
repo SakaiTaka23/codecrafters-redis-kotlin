@@ -38,8 +38,9 @@ public class EncoderTest : ShouldSpec({
         val protocol = Protocol(
             mutableListOf(
                 "FULLRESYNC",
-                "REPL_ID", "0"
-            )
+                "REPL_ID",
+                "0",
+            ),
         )
         val result = protocol.simpleString()
         result shouldBe "+FULLRESYNC REPL_ID 0\r\n"

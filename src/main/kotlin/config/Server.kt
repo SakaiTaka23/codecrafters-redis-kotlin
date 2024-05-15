@@ -8,7 +8,7 @@ import resp.Protocol
 public class ReplicaClient(public val reader: ByteReadChannel, public val writer: ByteWriteChannel)
 
 @Suppress("LongParameterList")
-public class Server (
+public class Server(
     // Common Properties
     public val port: Int,
     public val isSlave: Boolean,

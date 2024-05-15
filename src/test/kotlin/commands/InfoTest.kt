@@ -29,10 +29,10 @@ public class InfoTest : ShouldSpec({
         val result = info.run(protocol)
         result shouldBe Protocol(
             mutableListOf(
-                "role:master\r\n"
-                        + "master_replid:${REPL_ID}\r\n"
-                        + "master_repl_offset:${REPL_OFFSET}"
-            )
+                "role:master\r\n" +
+                    "master_replid:${REPL_ID}\r\n" +
+                    "master_repl_offset:${REPL_OFFSET}",
+            ),
         )
     }
 })

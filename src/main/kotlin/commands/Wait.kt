@@ -13,7 +13,7 @@ import resp.Protocol
 
 public class Wait(
     private val server: Server,
-    private val propagator: Propagator
+    private val propagator: Propagator,
 ) {
     private val backgroundTasks = Job()
     private val mutex = Mutex()

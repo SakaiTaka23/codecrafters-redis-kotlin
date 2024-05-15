@@ -16,7 +16,7 @@ private object HandshakeError : Throwable("Failed to create connection with mast
 public class HandShake(
     private val serverPort: Int,
     private val client: Responder,
-    private val reader: Reader
+    private val reader: Reader,
 ) {
     public suspend fun run(masterHost: String?, masterPort: Int?): Replica {
         val masterConnection = createClient(masterHost, masterPort)
@@ -36,7 +36,7 @@ public class HandShake(
         val socket = aSocket(selectorManager).tcp().connect(hostname, port)
         return Replica(
             socket.openReadChannel(),
-            socket.openWriteChannel(autoFlush = true)
+            socket.openWriteChannel(autoFlush = true),
         )
     }
 
@@ -49,7 +49,8 @@ public class HandShake(
 
     private suspend fun sendREPLCONF(masterConnection: Replica) {
         client.sendArray(
-            Protocol(mutableListOf("REPLCONF", "listening-port", "${serverPort}")), masterConnection.writer
+            Protocol(mutableListOf("REPLCONF", "listening-port", "$serverPort")),
+            masterConnection.writer,
         )
         if (!reader.read(masterConnection.reader).isOK()) {
             throw HandshakeError

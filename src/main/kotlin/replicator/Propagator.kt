@@ -7,11 +7,10 @@ import kotlinx.coroutines.launch
 import presentor.Responder
 import resp.Protocol
 
-
 public class Propagator(
     private val server: Server,
     private val sender: Responder,
-    private val propagateCommandChannel : Channel<Protocol>
+    private val propagateCommandChannel: Channel<Protocol>,
 ) {
     private val ackProtocol = Protocol(mutableListOf("REPLCONF", "GETACK", "*"))
 

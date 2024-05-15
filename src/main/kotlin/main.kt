@@ -59,7 +59,7 @@ public suspend fun main(args: Array<String>) {
         if (inputConfig.isSlave) {
             val masterConnection = HandShake(inputConfig.port, Responder, Reader(Decoder)).run(
                 inputConfig.masterHost,
-                inputConfig.masterPort
+                inputConfig.masterPort,
             )
             println("Server is in slave mode connecting to ${inputConfig.masterHost}:${inputConfig.masterPort}")
             launch {
@@ -68,8 +68,8 @@ public suspend fun main(args: Array<String>) {
                         reader,
                         masterConnection,
                         storage,
-                        Responder
-                    )
+                        Responder,
+                    ),
                 ) {
                     CoroutineScope(readPropagateJob).start()
                 }
@@ -85,7 +85,7 @@ public suspend fun main(args: Array<String>) {
                 storage,
                 Responder,
                 server,
-                serverSocket
+                serverSocket,
             ).start()
         }
     }
