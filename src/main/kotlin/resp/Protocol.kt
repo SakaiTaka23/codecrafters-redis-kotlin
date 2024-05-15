@@ -6,3 +6,4 @@ public data class Protocol(
 
 public fun Protocol.commandCount(): Int = arguments.size
 public fun Protocol.isOK(): Boolean = arguments[0] == "OK"
+public fun Protocol.countBytes(): Int = this.encodeArray().joinToString("").toByteArray().size
