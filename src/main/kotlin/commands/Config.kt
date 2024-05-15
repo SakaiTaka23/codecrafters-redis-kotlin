@@ -10,11 +10,11 @@ public class Config(private val server: Server) : CommandRoutes {
         protocol.arguments.forEach {
             when (it) {
                 "dir" -> result.apply {
-                    add("dir");
+                    add("dir")
                     add(server.dir)
                 }
                 "dbname" -> result.apply {
-                    add("dbname");
+                    add("dbname")
                     add(server.dbfilename)
                 }
             }

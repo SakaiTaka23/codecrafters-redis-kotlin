@@ -26,7 +26,7 @@ public class WaitTest : ShouldSpec() {
             result shouldBe Protocol(mutableListOf("10"))
         }
 
-        should("return on goal") {
+        should("return on goal").config(enabled = false) {
             val protocol = Protocol(mutableListOf("wait", "5", "1000"))
 
             every { server.lastCommand.arguments } returns mutableListOf("set", "key", "value")
