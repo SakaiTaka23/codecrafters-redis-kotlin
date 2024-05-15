@@ -2,16 +2,12 @@ package reciever
 
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.core.readBytes
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import resp.Decoder
 import resp.Protocol
 
 private const val READ_LINE_LIMIT = 100
 
-public class Reader : KoinComponent {
-    private val decoder: Decoder by inject()
-
+public class Reader(private val decoder: Decoder) {
     public suspend fun read(source: ByteReadChannel): Protocol {
         val result = mutableListOf<String>()
         val firstLine = source.readUTF8Line(READ_LINE_LIMIT) ?: error("message not found")

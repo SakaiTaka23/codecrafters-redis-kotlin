@@ -1,6 +1,6 @@
 package resp
 
-public class Decoder {
+public object Decoder {
     private fun simpleString(string: String): String = string.removePrefix("+").deleteCRCL()
     private fun arrayCount(string: String): String = string.removePrefix("*").deleteCRCL()
     private fun String.deleteCRCL(): String = this.removeSuffix("\r\n")

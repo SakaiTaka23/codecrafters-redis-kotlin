@@ -1,17 +1,16 @@
 package commands
 
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
 import resp.Protocol
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
 private const val ECHO_STR = "apple"
 
-public class EchoTest {
-    @Test
-    public fun `returns expected words`() {
+public class EchoTest : ShouldSpec({
+    should("return expected words") {
         val input = Protocol(mutableListOf("echo", ECHO_STR))
         val result = Echo().run(input)
 
-        assertEquals(Protocol(mutableListOf(ECHO_STR)), result)
+        result shouldBe Protocol(mutableListOf(ECHO_STR))
     }
-}
+})

@@ -8,14 +8,13 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import replicator.Propagator
 import resp.Protocol
 
-public class Wait : KoinComponent {
-    private val server: Server by inject()
-    private val propagator: Propagator by inject()
+public class Wait(
+    private val server: Server,
+    private val propagator: Propagator,
+) {
     private val backgroundTasks = Job()
     private val mutex = Mutex()
 
@@ -26,33 +25,34 @@ public class Wait : KoinComponent {
         }
 
         val goalReplica = protocol.arguments[1].toInt()
-//        val goalBytes = server.offsetFromMasterToClient() + server.lastWriteCommandByteCount * goalReplica
         val timeLimit = protocol.arguments[2].toLong()
+        val goalBytes = server.replOffset
+        println("goalBytes $goalBytes")
 
         with(propagator) {
             CoroutineScope(backgroundTasks).sendAck()
         }
 
-        var currentByte = 0
-        var got = 0
-
+        var acknowledgmentCount = 0
         mutex.withLock {
             try {
                 withTimeout(timeLimit) {
                     while (isActive) {
                         val count = server.propagateResultChannel.receive()
-                        got += 1
-                        currentByte += count
-                        if (got >= goalReplica) {
+
+                        if (count >= goalBytes) {
+                            acknowledgmentCount++
+                        }
+                        if (acknowledgmentCount >= goalReplica) {
                             return@withTimeout
                         }
                     }
                 }
             } catch (e: TimeoutCancellationException) {
-                return Protocol(mutableListOf(got.toString()))
+                return Protocol(mutableListOf(acknowledgmentCount.toString()))
             }
         }
 
-        return Protocol(mutableListOf(goalReplica.toString()))
+        return Protocol(mutableListOf(acknowledgmentCount.toString()))
     }
 }

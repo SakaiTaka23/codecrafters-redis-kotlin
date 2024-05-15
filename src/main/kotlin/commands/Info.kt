@@ -1,31 +1,24 @@
 package commands
 
 import config.Server
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import resp.Protocol
 
-public class Info : CommandRoutes, KoinComponent {
-    private val server: Server by inject()
-
-    override fun run(protocol: Protocol): Protocol {
-        val result = mutableListOf<String>()
-
-        return when (protocol.arguments.getOrNull(1)) {
-            "replication" -> {
-                if (server.isSlave) {
-                    result.add("role:slave")
-                } else {
-                    result.add(
-                        "role:master\r\n"
-                                + "master_replid:${server.replID}\r\n"
-                                + "master_repl_offset:${server.replOffset}"
-                    )
-                }
-                Protocol(result)
+public class Info(private val server: Server) : CommandRoutes {
+    override fun run(protocol: Protocol): Protocol = when (protocol.arguments.getOrNull(1)) {
+        "replication" -> {
+            if (server.isSlave) {
+                Protocol(mutableListOf("role:slave"))
+            } else {
+                Protocol(
+                    mutableListOf(
+                        "role:master\r\n" +
+                            "master_replid:${server.replID}\r\n" +
+                            "master_repl_offset:${server.replOffset}",
+                    ),
+                )
             }
-
-            else -> Protocol(mutableListOf())
         }
+
+        else -> Protocol(mutableListOf())
     }
 }

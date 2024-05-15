@@ -1,45 +1,24 @@
 package commands
 
 import config.Server
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
-import org.koin.test.KoinTest
-import org.koin.test.inject
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockk
 import resp.Protocol
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
-public class PsyncTest : KoinTest {
-    private val server: Server by inject()
+private const val REPL_ID = "12345"
+private const val REPL_OFFSET = 10
 
-    @BeforeTest
-    public fun beforeTest() {
-        startKoin {
-            modules(
-                module {
-                    single<Server> { Server(arrayOf("--port", "6380", "--replicaof", "localhost", "6379")) }
-                }
-            )
-        }
-    }
+public class PsyncTest : ShouldSpec({
+    val server = mockk<Server>()
+    val psync = Psync(server)
 
-    @AfterTest
-    public fun afterTest() {
-        stopKoin()
-    }
-
-    @Test
-    public fun `returns full resync`() {
-        server.replID = "mock_id"
-        server.replOffset = 0
+    should("return fullresync on handshake") {
+        every { server.replID } returns REPL_ID
+        every { server.replOffset } returns REPL_OFFSET
         val protocol = Protocol(mutableListOf("psync", "?", "-1"))
-        val result = Psync().run(protocol)
-
-        assertEquals(
-            Protocol(mutableListOf("FULLRESYNC", "mock_id", "0")), result
-        )
+        val result = psync.run(protocol)
+        result shouldBe Protocol(mutableListOf("FULLRESYNC", REPL_ID, REPL_OFFSET.toString()))
     }
-}
+})

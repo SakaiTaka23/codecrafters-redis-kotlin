@@ -36,7 +36,7 @@ public object Parser {
     }
 
     private fun loadFile(dir: String, dbfilename: String): FileInputStream? = try {
-        File("${dir}/${dbfilename}").inputStream()
+        File("$dir/$dbfilename").inputStream()
     } catch (e: FileNotFoundException) {
         println("File was not found")
         null

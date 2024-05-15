@@ -1,18 +1,15 @@
 package commands
 
+import io.kotest.core.spec.style.ShouldSpec
+import io.kotest.matchers.shouldBe
 import resp.Protocol
-import kotlin.test.Test
-import kotlin.test.assertEquals
 
-public class PingTest {
-    @Test
-    public fun `returns pong`() {
-        val command = Protocol(mutableListOf("ping"))
-        val result = Ping().run(command)
+public class PingTest : ShouldSpec({
+    val ping = Ping()
 
-        assertEquals(
-            Protocol(mutableListOf("PONG")),
-            result
-        )
+    should("return pong") {
+        val protocol = Protocol(mutableListOf("ping"))
+        val result = ping.run(protocol)
+        result shouldBe Protocol(mutableListOf("PONG"))
     }
-}
+})
