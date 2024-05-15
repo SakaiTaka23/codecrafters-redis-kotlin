@@ -6,6 +6,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import presentor.Responder
 import resp.Protocol
+import resp.countBytes
 
 public class Propagator(
     private val server: Server,
@@ -20,9 +21,8 @@ public class Propagator(
             server.replicaClients.forEach { client ->
                 sender.sendArray(protocol, client.writer)
             }
-            val rawProtocol = protocol.arguments.joinToString(separator = "")
-            val size = rawProtocol.toByteArray().size
-            server.replOffset += size
+            println("adding on set command ${protocol.countBytes()}")
+            server.replOffset += protocol.countBytes()
         }
     }
 
@@ -31,6 +31,7 @@ public class Propagator(
             server.replicaClients.map { client ->
                 sender.sendArray(ackProtocol, client.writer)
             }
+            server.replOffset += ackProtocol.countBytes()
         }
     }
 }
