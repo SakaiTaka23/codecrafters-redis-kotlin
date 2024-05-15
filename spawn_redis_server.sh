@@ -1,3 +1,4 @@
 #!/bin/sh
 set -e
-exec java -jar ../codecrafters-redis-kotlin/target/java_redis.jar "$@"
+mvn -B --quiet package -Ddir=/tmp/codecrafters-redis-target
+exec java -jar /tmp/codecrafters-redis-target/java_redis.jar "$@"
