@@ -8,7 +8,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import presentor.Responder
-import rdbreader.Parser
+import rdbreader.parseRDB
 import reciever.Reader
 import replicator.HandShake
 import replicator.Propagator
@@ -22,14 +22,15 @@ public suspend fun main(args: Array<String>) {
     val storage = InMemory()
     val inputConfig = args.checkArgs()
     if (inputConfig.dir.isNotBlank() && inputConfig.dbfilename.isNotBlank()) {
-        val datas = Parser.read(inputConfig.dir, inputConfig.dbfilename)
-
+        val datas = parseRDB(inputConfig.dir, inputConfig.dbfilename)
         datas.forEach { data ->
-            val expire = data.value.getExpiredDate()
+            val expire = data.value.second
             if (expire != null) {
-                storage.set(data.key, data.value.getValue(), data.value.getExpiredDate())
+                println("setting data with expiration: key ${data.key}, value: ${data.value.first}, expire: $expire")
+                storage.set(data.key, data.value.first, expire)
             } else {
-                storage.set(data.key, data.value.getValue())
+                println("setting data without expiration: key ${data.key}, value: ${data.value.first}")
+                storage.set(data.key, data.value.first)
             }
         }
     }
