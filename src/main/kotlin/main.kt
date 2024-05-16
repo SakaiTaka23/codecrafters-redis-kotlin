@@ -13,6 +13,7 @@ import reciever.Reader
 import replicator.HandShake
 import replicator.Propagator
 import repository.InMemory
+import repository.InMemoryStream
 import resp.Decoder
 import resp.Protocol
 import routes.PropagateRouting
@@ -50,6 +51,7 @@ public suspend fun main(args: Array<String>) {
         mutableListOf(),
     )
     val propagator = Propagator(server, Responder, propagateChannel)
+    val streamRepo = InMemoryStream()
     val reader = Reader(Decoder)
     val readPropagateJob = Job()
 
@@ -87,6 +89,7 @@ public suspend fun main(args: Array<String>) {
                 Responder,
                 server,
                 serverSocket,
+                streamRepo,
             ).start()
         }
     }

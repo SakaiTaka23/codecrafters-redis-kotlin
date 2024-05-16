@@ -6,7 +6,6 @@ import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
-import java.time.Clock
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -14,7 +13,9 @@ import presentor.Responder
 import reciever.Reader
 import replicator.Propagator
 import repository.Storage
+import repository.StreamStorage
 import resp.Protocol
+import java.time.Clock
 
 @Suppress("LongParameterList")
 public class Routing(
@@ -25,6 +26,7 @@ public class Routing(
     private val responder: Responder,
     private val server: Server,
     private val socket: ServerSocket,
+    private val streamRepo: StreamStorage,
 ) {
     public suspend fun start() {
         coroutineScope {
@@ -113,6 +115,11 @@ public class Routing(
             "wait" -> {
                 val result = commands.Wait(server, propagator).run(protocol)
                 responder.sendInteger(result, sendChannel)
+            }
+
+            "xadd" -> {
+                val result = commands.Xadd(streamRepo).run(protocol)
+                responder.sendBulkString(result, sendChannel)
             }
 
             else -> error("unknown command ${protocol.arguments[0]}")
