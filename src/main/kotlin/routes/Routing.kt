@@ -6,6 +6,7 @@ import io.ktor.network.sockets.openReadChannel
 import io.ktor.network.sockets.openWriteChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.ByteWriteChannel
+import java.time.Clock
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -14,7 +15,6 @@ import reciever.Reader
 import replicator.Propagator
 import repository.Storage
 import resp.Protocol
-import java.time.Clock
 
 @Suppress("LongParameterList")
 public class Routing(
@@ -103,6 +103,11 @@ public class Routing(
                 val result = commands.Set(repo, Clock.systemUTC()).run(protocol)
                 responder.sendSimpleString(result, sendChannel)
                 propagateChannel.send(protocol)
+            }
+
+            "type" -> {
+                val result = commands.Type(repo).run(protocol)
+                responder.sendSimpleString(result, sendChannel)
             }
 
             "wait" -> {
