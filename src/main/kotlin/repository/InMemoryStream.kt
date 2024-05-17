@@ -11,9 +11,15 @@ public class InMemoryStream : StreamStorage {
     private val data = ConcurrentHashMap<String, MutableMap<String, Map<String, String>>>()
 
     public override fun set(streamKey: String, timeStamp: String, keyValue: Map<String, String>) {
+        data[streamKey] = mutableMapOf(timeStamp to keyValue)
+    }
+
+    public override fun getKey(streamKey: String): String? {
         val stream = data[streamKey]
-        keyValue.forEach {
-            stream?.put(timeStamp, mapOf(it.key to it.value))
+        return if (stream != null) {
+            streamKey
+        } else {
+            null
         }
     }
 }

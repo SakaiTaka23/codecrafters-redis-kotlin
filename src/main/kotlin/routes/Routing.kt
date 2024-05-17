@@ -108,7 +108,7 @@ public class Routing(
             }
 
             "type" -> {
-                val result = commands.Type(repo).run(protocol)
+                val result = commands.Type(repo, streamRepo).run(protocol)
                 responder.sendSimpleString(result, sendChannel)
             }
 
