@@ -4,7 +4,9 @@ import io.kotest.core.spec.style.ShouldSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.CapturingSlot
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 import io.mockk.slot
 import repository.StreamStorage
 import resp.Protocol
@@ -60,7 +62,6 @@ public class XaddTest : ShouldSpec({
     }
 
     should("return error on validation fail") {
-        every { repo.set(any(), any(), any()) } returns Unit
         every { repo.latestTimeStamp(STREAM_KEY) } returns "99-1"
         val command = Protocol(
             mutableListOf(
@@ -76,6 +77,46 @@ public class XaddTest : ShouldSpec({
         val result = xadd.run(command)
         result shouldBe Protocol(
             mutableListOf("ERR The ID specified in XADD is equal or smaller than the target stream top item"),
+        )
+    }
+
+    should("generate sequence for *") {
+        every { repo.latestTimeStamp(STREAM_KEY) } returns "0-1"
+        every { repo.set(any(), any(), any()) } just runs
+        val command = Protocol(
+            mutableListOf(
+                "XADD",
+                STREAM_KEY,
+                "0-*",
+                "temperature",
+                "36",
+                "humidity",
+                "95",
+            ),
+        )
+        val result = xadd.run(command)
+        result shouldBe Protocol(
+            mutableListOf("0-2"),
+        )
+    }
+
+    should("generate sequence for non existing timestamp") {
+        every { repo.latestTimeStamp(STREAM_KEY) } returns "0-1"
+        every { repo.set(any(), any(), any()) } just runs
+        val command = Protocol(
+            mutableListOf(
+                "XADD",
+                STREAM_KEY,
+                "1-*",
+                "temperature",
+                "36",
+                "humidity",
+                "95",
+            ),
+        )
+        val result = xadd.run(command)
+        result shouldBe Protocol(
+            mutableListOf("1-0"),
         )
     }
 })
