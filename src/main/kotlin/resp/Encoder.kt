@@ -52,3 +52,5 @@ public fun Protocol.simpleString(): String {
 
     return result.addCRCL()
 }
+
+public fun Protocol.simpleError(): String = "-${this.arguments[0]}".addCRCL()

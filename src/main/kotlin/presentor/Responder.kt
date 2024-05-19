@@ -8,6 +8,7 @@ import resp.bulkString
 import resp.encodeArray
 import resp.integer
 import resp.rdbFileSize
+import resp.simpleError
 import resp.simpleString
 
 public object Responder {
@@ -28,6 +29,10 @@ public object Responder {
     public suspend fun sendRdbFile(content: ByteArray, sender: ByteWriteChannel) {
         sender.writeStringUtf8(content.rdbFileSize())
         sender.writeFully(content)
+    }
+
+    public suspend fun sendSimpleError(protocol: Protocol, sender: ByteWriteChannel) {
+        sender.writeStringUtf8(protocol.simpleError())
     }
 
     public suspend fun sendSimpleString(protocol: Protocol, sender: ByteWriteChannel) {
