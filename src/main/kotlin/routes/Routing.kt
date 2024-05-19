@@ -119,7 +119,11 @@ public class Routing(
 
             "xadd" -> {
                 val result = commands.Xadd(streamRepo).run(protocol)
-                responder.sendBulkString(result, sendChannel)
+                if (result.arguments[0].startsWith("ERR")) {
+                    responder.sendSimpleError(result, sendChannel)
+                } else {
+                    responder.sendBulkString(result, sendChannel)
+                }
             }
 
             else -> error("unknown command ${protocol.arguments[0]}")
