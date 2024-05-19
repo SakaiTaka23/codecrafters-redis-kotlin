@@ -12,29 +12,35 @@ public class Xadd(private val repo: StreamStorage) : CommandRoutes {
         val timeStamp = rawTimeStamp.splitTimeStamp()
         val keyValue = mutableMapOf<String, String>()
         val arguments = protocol.arguments.drop(COUNT_TO_KEY_VALUE)
-
-        val milliSeconds = timeStamp[0].toIntOrNull() ?: return Protocol(mutableListOf())
-        val sequenceNumber = timeStamp[1].let {
-            if (it == "*") {
-                Int.MAX_VALUE
-            } else {
-                it.toIntOrNull() ?: return Protocol(mutableListOf())
-            }
-        }
+        val setTimeStamp: String
         val latestTimeStamp = repo.latestTimeStamp(streamKey).splitTimeStamp()
 
-        if (!validateMinimum(milliSeconds, sequenceNumber)) {
-            return Protocol(
-                mutableListOf("ERR The ID specified in XADD must be greater than 0-0"),
-            )
-        }
-        if (!validateTimestamp(milliSeconds, sequenceNumber, latestTimeStamp)) {
-            return Protocol(
-                mutableListOf("ERR The ID specified in XADD is equal or smaller than the target stream top item"),
-            )
-        }
+        if (timeStamp.getOrNull(0) != "*") {
+            val milliSeconds = timeStamp[0].toIntOrNull() ?: return Protocol(mutableListOf())
+            val sequenceNumber = timeStamp[1].let {
+                if (it == "*") {
+                    Int.MAX_VALUE
+                } else {
+                    it.toIntOrNull() ?: return Protocol(mutableListOf())
+                }
+            }
 
-        val setTimeStamp = generateSequence(milliSeconds, sequenceNumber, latestTimeStamp, rawTimeStamp)
+            if (!validateMinimum(milliSeconds, sequenceNumber)) {
+                return Protocol(
+                    mutableListOf("ERR The ID specified in XADD must be greater than 0-0"),
+                )
+            }
+            if (!validateTimestamp(milliSeconds, sequenceNumber, latestTimeStamp)) {
+                return Protocol(
+                    mutableListOf("ERR The ID specified in XADD is equal or smaller than the target stream top item"),
+                )
+            }
+
+            setTimeStamp = generateSequence(milliSeconds, sequenceNumber, latestTimeStamp, rawTimeStamp)
+        } else {
+            val unixTime = System.currentTimeMillis()
+            setTimeStamp = "$unixTime-0"
+        }
 
         for (i in arguments.indices step 2) {
             if (i + 1 < arguments.size) {
