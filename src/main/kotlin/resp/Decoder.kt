@@ -1,7 +1,12 @@
 package resp
 
 public object Decoder {
-    private fun simpleString(string: String): String = string.removePrefix("+").deleteCRCL()
+    private fun simpleString(string: String): String = if (string == "+") {
+        "+"
+    } else {
+        string.removePrefix("+").deleteCRCL()
+    }
+
     private fun arrayCount(string: String): String = if (string == "*") {
         "*"
     } else {
