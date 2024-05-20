@@ -126,6 +126,11 @@ public class Routing(
                 }
             }
 
+            "xrange" -> {
+                val result = commands.XRange(streamRepo).run(protocol)
+                responder.sendList(result, sendChannel)
+            }
+
             else -> error("unknown command ${protocol.arguments[0]}")
         }
     }
