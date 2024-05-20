@@ -3,10 +3,12 @@ package presentor
 import io.ktor.utils.io.ByteWriteChannel
 import io.ktor.utils.io.writeFully
 import io.ktor.utils.io.writeStringUtf8
+import resp.Entry
 import resp.Protocol
 import resp.bulkString
 import resp.encodeArray
 import resp.integer
+import resp.list
 import resp.rdbFileSize
 import resp.simpleError
 import resp.simpleString
@@ -41,5 +43,12 @@ public object Responder {
 
     public suspend fun sendInteger(protocol: Protocol, sender: ByteWriteChannel) {
         sender.writeStringUtf8(protocol.integer())
+    }
+
+    public suspend fun sendList(entries: List<Entry>, sender: ByteWriteChannel) {
+        val result = entries.list()
+        result.forEach {
+            sender.writeStringUtf8(it)
+        }
     }
 }

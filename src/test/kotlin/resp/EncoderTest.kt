@@ -45,4 +45,21 @@ public class EncoderTest : ShouldSpec({
         val result = protocol.simpleString()
         result shouldBe "+FULLRESYNC REPL_ID 0\r\n"
     }
+
+    should("encode list") {
+        val entry = listOf(
+            Entry("1-0", listOf("foo", "bar")),
+            Entry("2-0", listOf("hoge", "fuga")),
+        )
+        val result = entry.list()
+        result shouldBe mutableListOf(
+            "*2\r\n",
+            "*2\r\n",
+            "$3\r\n", "1-0\r\n",
+            "*2\r\n", "$3\r\n", "foo\r\n", "$3\r\n", "bar\r\n",
+            "*2\r\n",
+            "$3\r\n", "2-0\r\n",
+            "*2\r\n", "$4\r\n", "hoge\r\n", "$4\r\n", "fuga\r\n",
+        )
+    }
 })

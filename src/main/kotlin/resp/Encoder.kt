@@ -54,3 +54,20 @@ public fun Protocol.simpleString(): String {
 }
 
 public fun Protocol.simpleError(): String = "-${this.arguments[0]}".addCRCL()
+
+public fun List<Entry>.list(): MutableList<String> {
+    val result = mutableListOf<String>()
+    result.add(commandCount(this.size))
+    this.forEach { entry ->
+        result.add(commandCount(2))
+        result.add(contentCount(entry.timeStamp.length))
+        result.add(content(entry.timeStamp))
+        result.add(commandCount(entry.content.size))
+        entry.content.forEach { content ->
+            result.add(contentCount(content.length))
+            result.add(content(content))
+        }
+    }
+
+    return result
+}
