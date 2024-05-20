@@ -53,4 +53,10 @@ public class InMemoryStream : StreamStorage {
     }
 }
 
-public fun String.splitTimeStamp(): List<String> = this.split("-")
+public fun String.splitTimeStamp(): List<String> {
+    return if (this == "-") {
+        listOf("-")
+    } else {
+        this.split("-")
+    }
+}
