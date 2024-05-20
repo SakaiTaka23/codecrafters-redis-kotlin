@@ -11,7 +11,13 @@ public class XRange(private val repo: StreamStorage) {
         val startTimestamp = protocol.arguments[2].splitTimeStamp()
         val endTimestamp = protocol.arguments[3].splitTimeStamp()
 
-        val minTime = startTimestamp[0].toInt()
+        val minTime = startTimestamp[0].let {
+            if (it == "-") {
+                0
+            } else {
+                it.toInt()
+            }
+        }
         val maxTime = endTimestamp[0].toInt()
         val minSequence = startTimestamp.getOrNull(1)?.toIntOrNull() ?: 0
         val maxSequence = endTimestamp.getOrNull(1)?.toIntOrNull() ?: Int.MAX_VALUE
