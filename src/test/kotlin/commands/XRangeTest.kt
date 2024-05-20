@@ -16,8 +16,7 @@ public class XRangeTest : ShouldSpec({
     val repo = mockk<InMemoryStream>()
     val xRange = XRange(repo)
 
-    val minTimeArg: CapturingSlot<Int> = slot<Int>()
-    val maxTimeArg: CapturingSlot<Int> = slot<Int>()
+    val timeArg: CapturingSlot<Int> = slot<Int>()
 
     should("return value in expected format") {
         val mockMap = mapOf("apple" to "orange")
@@ -36,9 +35,16 @@ public class XRangeTest : ShouldSpec({
     }
 
     should("call range with 0 when - is minimum") {
-        every { repo.getByRange(STREAM_KEY, capture(maxTimeArg), 10) } returns mutableMapOf()
+        every { repo.getByRange(STREAM_KEY, capture(timeArg), 10) } returns mutableMapOf()
         val protocol = Protocol(mutableListOf("xrange", STREAM_KEY, "-", "10"))
         xRange.run(protocol)
-        maxTimeArg.captured shouldBe 0
+        timeArg.captured shouldBe 0
+    }
+
+    should("call range with Int.MAX_VALUE when + is maximum") {
+        every { repo.getByRange(STREAM_KEY, 0, capture(timeArg)) } returns mutableMapOf()
+        val protocol = Protocol(mutableListOf("xrange", STREAM_KEY, "0", "+"))
+        xRange.run(protocol)
+        timeArg.captured shouldBe Int.MAX_VALUE
     }
 })

@@ -41,7 +41,7 @@ public class InMemoryStream : StreamStorage {
             val timeStamp = rawTimeStamp[0].toInt()
             val sequence = rawTimeStamp[1].toInt()
             if (timeStamp in minTime..maxTime) {
-                if (timeStamp > minTime || timeStamp < maxTime) {
+                if (timeStamp in (minTime + 1)..<maxTime) {
                     result[data.key] = data.value
                 } else if (sequence in minSequence..maxSequence) {
                     result[data.key] = data.value

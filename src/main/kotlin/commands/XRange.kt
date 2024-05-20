@@ -18,10 +18,17 @@ public class XRange(private val repo: StreamStorage) {
                 it.toInt()
             }
         }
-        val maxTime = endTimestamp[0].toInt()
+        val maxTime = endTimestamp[0].let {
+            if (it == "+") {
+                Int.MAX_VALUE
+            } else {
+                it.toInt()
+            }
+        }
         val minSequence = startTimestamp.getOrNull(1)?.toIntOrNull() ?: 0
         val maxSequence = endTimestamp.getOrNull(1)?.toIntOrNull() ?: Int.MAX_VALUE
 
+        println("called with getByRange $streamKey, $minTime, $maxTime, $minSequence, $maxSequence")
         val result = repo.getByRange(streamKey, minTime, maxTime, minSequence, maxSequence)
         return result.formatResult()
     }
