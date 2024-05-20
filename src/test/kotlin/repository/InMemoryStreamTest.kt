@@ -22,4 +22,38 @@ public class InMemoryStreamTest : ShouldSpec({
 
         result shouldBe "1-1"
     }
+
+    should("return ranges without sequence") {
+        val mockData = mapOf("apple" to "orange")
+        srepo.set(STREAM_KEY, "0-1", mockData)
+        srepo.set(STREAM_KEY, "10-0", mockData)
+        srepo.set(STREAM_KEY, "10-1", mockData)
+        srepo.set(STREAM_KEY, "12-0", mockData)
+        srepo.set(STREAM_KEY, "50-0", mockData)
+
+        val result = srepo.getByRange(STREAM_KEY, 9, 11)
+
+        result shouldBe mutableMapOf(
+            "10-0" to mockData,
+            "10-1" to mockData,
+        )
+    }
+
+    should("return ranges with sequence") {
+        val mockData = mapOf("apple" to "orange")
+        srepo.set(STREAM_KEY, "0-1", mockData)
+        srepo.set(STREAM_KEY, "10-0", mockData)
+        srepo.set(STREAM_KEY, "10-1", mockData)
+        srepo.set(STREAM_KEY, "10-2", mockData)
+        srepo.set(STREAM_KEY, "10-3", mockData)
+        srepo.set(STREAM_KEY, "12-0", mockData)
+        srepo.set(STREAM_KEY, "50-0", mockData)
+
+        val result = srepo.getByRange(STREAM_KEY, 10, 10, 1, 2)
+
+        result shouldBe mutableMapOf(
+            "10-1" to mockData,
+            "10-2" to mockData,
+        )
+    }
 })
