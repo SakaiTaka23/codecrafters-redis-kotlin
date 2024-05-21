@@ -71,3 +71,17 @@ public fun List<Entry>.list(): MutableList<String> {
 
     return result
 }
+
+public fun List<StreamEntry>.streamList(): MutableList<String> {
+    val result = mutableListOf<String>()
+    result.add(commandCount(this.size))
+    this.forEach { entry ->
+        result.add(commandCount(2))
+        result.add(contentCount(entry.streamKey.length))
+        result.add(content(entry.streamKey))
+        val encodedEntry = entry.entries.list()
+        result.addAll(encodedEntry)
+    }
+
+    return result
+}

@@ -62,4 +62,28 @@ public class EncoderTest : ShouldSpec({
             "*2\r\n", "$4\r\n", "hoge\r\n", "$4\r\n", "fuga\r\n",
         )
     }
+
+    should("encode stream list") {
+        val streamName = "some_stream"
+        val entry = listOf(
+            Entry("1-0", listOf("foo", "bar")),
+            Entry("2-0", listOf("hoge", "fuga")),
+        )
+        val streamEntry = listOf(
+            StreamEntry(streamName, entry),
+        )
+
+        val result = streamEntry.streamList()
+        result shouldBe mutableListOf(
+            "*1\r\n",
+            "*2\r\n",
+            "$11\r\n", "some_stream\r\n",
+            "*2\r\n", "*2\r\n",
+            "$3\r\n", "1-0\r\n",
+            "*2\r\n", "$3\r\n", "foo\r\n", "$3\r\n", "bar\r\n",
+            "*2\r\n",
+            "$3\r\n", "2-0\r\n",
+            "*2\r\n", "$4\r\n", "hoge\r\n", "$4\r\n", "fuga\r\n",
+        )
+    }
 })
