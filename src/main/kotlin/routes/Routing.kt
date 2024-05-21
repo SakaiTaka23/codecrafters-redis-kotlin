@@ -131,6 +131,11 @@ public class Routing(
                 responder.sendList(result, sendChannel)
             }
 
+            "xread" -> {
+                val result = commands.XRead(streamRepo).run(protocol)
+                responder.sendStreamList(result, sendChannel)
+            }
+
             else -> error("unknown command ${protocol.arguments[0]}")
         }
     }
