@@ -8,17 +8,34 @@ import resp.StreamEntry
 
 public class XRead(private val repo: StreamStorage) {
     public fun run(protocol: Protocol): List<StreamEntry> {
-        val streamKey = protocol.arguments[2]
-        val startTimestamp = protocol.arguments[3].splitTimeStamp()
-        val minTime = startTimestamp[0].toInt()
-        val minSequence = startTimestamp[1].toInt()
+        val keys = protocol.readKeys()
         val result = mutableListOf<StreamEntry>()
 
-        val streamResult = repo.getByStart(streamKey, minTime, minSequence).formatResult()
-        result.add(StreamEntry(streamKey, streamResult))
+        keys.forEach {
+            val rawTime = it.value.splitTimeStamp()
+            val streamResult = repo.getByStart(it.key, rawTime[0].toInt(), rawTime[1].toInt()).formatResult()
+            result.add(StreamEntry(it.key, streamResult))
+        }
 
         return result
     }
+}
+
+private fun Protocol.readKeys(): Map<String, String> {
+    val result: MutableMap<String, String> = mutableMapOf()
+    this.arguments.removeAt(0)
+    this.arguments.removeAt(0)
+
+    val keyValues = this.arguments
+    val keyCount = keyValues.size / 2
+
+    keyValues.forEachIndexed { index, key ->
+        if (index < keyCount) {
+            result.put(key, keyValues[index + keyCount])
+        }
+    }
+
+    return result
 }
 
 private fun MutableMap<String, Map<String, String>>.formatResult(): List<Entry> {
