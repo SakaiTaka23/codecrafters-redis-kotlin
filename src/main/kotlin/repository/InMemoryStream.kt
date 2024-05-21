@@ -51,6 +51,27 @@ public class InMemoryStream : StreamStorage {
 
         return result
     }
+
+    override fun getByStart(
+        streamKey: String,
+        minTime: Int,
+        minSequence: Int,
+    ): MutableMap<String, Map<String, String>> {
+        val result = mutableMapOf<String, Map<String, String>>()
+        val stream = data[streamKey] ?: return result
+        stream.forEach { data ->
+            val rawTimeStamp = data.key.splitTimeStamp()
+            val timeStamp = rawTimeStamp[0].toInt()
+            val sequence = rawTimeStamp[1].toInt()
+            if (timeStamp > minTime) {
+                result[data.key] = data.value
+            } else if (timeStamp == minTime && sequence > minSequence) {
+                result[data.key] = data.value
+            }
+        }
+
+        return result
+    }
 }
 
 public fun String.splitTimeStamp(): List<String> {

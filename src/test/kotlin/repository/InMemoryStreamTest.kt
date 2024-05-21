@@ -6,7 +6,11 @@ import io.kotest.matchers.shouldBe
 private const val STREAM_KEY = "stream_key"
 
 public class InMemoryStreamTest : ShouldSpec({
-    val srepo = InMemoryStream()
+    var srepo = InMemoryStream()
+
+    beforeEach {
+        srepo = InMemoryStream()
+    }
 
     should("return stored keys") {
         srepo.set(STREAM_KEY, "0-1", mapOf("apple" to "orange"))
@@ -54,6 +58,23 @@ public class InMemoryStreamTest : ShouldSpec({
         result shouldBe mutableMapOf(
             "10-1" to mockData,
             "10-2" to mockData,
+        )
+    }
+
+    should("get all data bigger than passed") {
+        val mockData = mapOf("apple" to "orange")
+        srepo.set(STREAM_KEY, "0-1", mockData)
+        srepo.set(STREAM_KEY, "10-0", mockData)
+        srepo.set(STREAM_KEY, "10-1", mockData)
+        srepo.set(STREAM_KEY, "12-0", mockData)
+        srepo.set(STREAM_KEY, "50-0", mockData)
+
+        val result = srepo.getByStart(STREAM_KEY, 10, 0)
+
+        result shouldBe mutableMapOf(
+            "10-1" to mockData,
+            "12-0" to mockData,
+            "50-0" to mockData,
         )
     }
 })

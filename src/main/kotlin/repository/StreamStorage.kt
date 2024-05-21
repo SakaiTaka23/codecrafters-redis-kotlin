@@ -11,4 +11,10 @@ public interface StreamStorage {
         minSequence: Int = 0,
         maxSequence: Int = Int.MAX_VALUE,
     ): MutableMap<String, Map<String, String>>
+
+    public fun getByStart(
+        streamKey: String,
+        minTime: Int,
+        minSequence: Int,
+    ): MutableMap<String, Map<String, String>>
 }
