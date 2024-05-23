@@ -17,10 +17,17 @@ public class XRead(private val repo: StreamStorage) {
                 null
             }
         }
+        val validatedTimeout = blockTimeout.let {
+            if (it?.toInt() == 0) {
+                Long.MAX_VALUE
+            } else {
+                it
+            }
+        }
         val keys = protocol.readKeys()
         val result = mutableListOf<StreamEntry>()
 
-        when (blockTimeout) {
+        when (validatedTimeout) {
             null -> {
                 keys.forEach {
                     val rawTime = it.value.splitTimeStamp()
@@ -33,7 +40,7 @@ public class XRead(private val repo: StreamStorage) {
                 keys.forEach {
                     val rawTime = it.value.splitTimeStamp()
                     val streamResult =
-                        repo.blockRead(it.key, blockTimeout, rawTime[0].toInt(), rawTime[1].toInt()).formatResult()
+                        repo.blockRead(it.key, validatedTimeout, rawTime[0].toInt(), rawTime[1].toInt()).formatResult()
                     if (streamResult.isNotEmpty()) {
                         result.add(StreamEntry(it.key, streamResult))
                     }
