@@ -1,11 +1,15 @@
 package commands
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import repository.StreamStorage
 import resp.Protocol
 
 private const val COUNT_TO_KEY_VALUE = 3
 
 public class Xadd(private val repo: StreamStorage) : CommandRoutes {
+    private val backgroundTasks = Job()
+
     override fun run(protocol: Protocol): Protocol {
         val streamKey = protocol.arguments[1]
         val rawTimeStamp = protocol.arguments[2]
@@ -47,7 +51,10 @@ public class Xadd(private val repo: StreamStorage) : CommandRoutes {
                 keyValue[arguments[i]] = arguments[i + 1]
             }
         }
-        repo.set(streamKey, setTimeStamp, keyValue.toMap())
+
+        with(repo) {
+            CoroutineScope(backgroundTasks).set(streamKey, setTimeStamp, keyValue.toMap())
+        }
 
         return Protocol(mutableListOf(setTimeStamp))
     }
