@@ -25,5 +25,6 @@ public interface StreamStorage {
         timeLimit: Long,
         minTime: Int,
         minSequence: Int,
+        getNewest: Boolean = false,
     ): MutableMap<String, Map<String, String>>
 }

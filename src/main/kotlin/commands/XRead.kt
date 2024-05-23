@@ -39,8 +39,14 @@ public class XRead(private val repo: StreamStorage) {
             else -> {
                 keys.forEach {
                     val rawTime = it.value.splitTimeStamp()
-                    val streamResult =
-                        repo.blockRead(it.key, validatedTimeout, rawTime[0].toInt(), rawTime[1].toInt()).formatResult()
+
+                    val streamResult = if (rawTime[0] == "$") {
+                        repo.blockRead(it.key, validatedTimeout, 0, 0, true)
+                            .formatResult()
+                    } else {
+                        repo.blockRead(it.key, validatedTimeout, rawTime[0].toInt(), rawTime[1].toInt())
+                            .formatResult()
+                    }
                     if (streamResult.isNotEmpty()) {
                         result.add(StreamEntry(it.key, streamResult))
                     }

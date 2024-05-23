@@ -98,10 +98,13 @@ public class InMemoryStream : StreamStorage {
         timeLimit: Long,
         minTime: Int,
         minSequence: Int,
+        getNewest: Boolean,
     ): MutableMap<String, Map<String, String>> {
-        val existingResult = getByStart(streamKey, minTime, minSequence)
-        if (existingResult.isNotEmpty()) {
-            return existingResult
+        if (getNewest) {
+            val existingResult = getByStart(streamKey, minTime, minSequence)
+            if (existingResult.isNotEmpty()) {
+                return existingResult
+            }
         }
 
         val result: MutableMap<String, Map<String, String>> = mutableMapOf()
