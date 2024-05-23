@@ -7,14 +7,38 @@ import resp.Protocol
 import resp.StreamEntry
 
 public class XRead(private val repo: StreamStorage) {
-    public fun run(protocol: Protocol): List<StreamEntry> {
+    public suspend fun run(protocol: Protocol): List<StreamEntry> {
+        val blockTimeout = protocol.arguments[1].let {
+            if (it == "block") {
+                val out = protocol.arguments.removeAt(2)
+                protocol.arguments.removeAt(1)
+                out.toLongOrNull()
+            } else {
+                null
+            }
+        }
         val keys = protocol.readKeys()
         val result = mutableListOf<StreamEntry>()
 
-        keys.forEach {
-            val rawTime = it.value.splitTimeStamp()
-            val streamResult = repo.getByStart(it.key, rawTime[0].toInt(), rawTime[1].toInt()).formatResult()
-            result.add(StreamEntry(it.key, streamResult))
+        when (blockTimeout) {
+            null -> {
+                keys.forEach {
+                    val rawTime = it.value.splitTimeStamp()
+                    val streamResult = repo.getByStart(it.key, rawTime[0].toInt(), rawTime[1].toInt()).formatResult()
+                    result.add(StreamEntry(it.key, streamResult))
+                }
+            }
+
+            else -> {
+                keys.forEach {
+                    val rawTime = it.value.splitTimeStamp()
+                    val streamResult =
+                        repo.blockRead(it.key, blockTimeout, rawTime[0].toInt(), rawTime[1].toInt()).formatResult()
+                    if (streamResult.isNotEmpty()) {
+                        result.add(StreamEntry(it.key, streamResult))
+                    }
+                }
+            }
         }
 
         return result
@@ -31,7 +55,7 @@ private fun Protocol.readKeys(): Map<String, String> {
 
     keyValues.forEachIndexed { index, key ->
         if (index < keyCount) {
-            result.put(key, keyValues[index + keyCount])
+            result[key] = keyValues[index + keyCount]
         }
     }
 
